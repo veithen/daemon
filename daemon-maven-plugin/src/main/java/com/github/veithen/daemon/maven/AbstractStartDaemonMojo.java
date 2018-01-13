@@ -166,7 +166,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
      * @required
      * @readonly
      */
-    private String axisVersion;
+    private String pluginVersion;
     
     private final Set/*<Artifact>*/ additionalDependencies = new HashSet();
     private List/*<File>*/ classpath;
@@ -182,8 +182,8 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
         classpath = null;
     }
     
-    protected final void addAxisDependency(String artifactId) {
-        addDependency("org.apache.axis", artifactId, axisVersion);
+    protected final void addDependency(String artifactId) {
+        addDependency("com.github.veithen.daemon", artifactId, pluginVersion);
     }
     
     protected final List/*<File>*/ getClasspath() throws ProjectBuildingException, InvalidDependencyVersionException, ArtifactResolutionException, ArtifactNotFoundException {
@@ -321,7 +321,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
     }
 
     protected final void doExecute() throws MojoExecutionException, MojoFailureException {
-        addAxisDependency("daemon-launcher");
+        addDependency("daemon-launcher");
         doStartDaemon();
     }
     

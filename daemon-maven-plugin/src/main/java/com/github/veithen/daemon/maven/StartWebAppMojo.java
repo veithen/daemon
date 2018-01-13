@@ -41,7 +41,7 @@ public class StartWebAppMojo extends AbstractStartWebServerMojo {
     private File[] resourceBases;
     
     protected void doStartDaemon(int port) throws MojoExecutionException, MojoFailureException {
-        addAxisDependency("jetty-daemon");
+        addDependency("jetty-daemon");
         startDaemon("HTTP server on port " + port, "com.github.veithen.daemon.jetty.WebAppDaemon",
                 new String[] { "-p", String.valueOf(port), "-r", StringUtils.join(resourceBases, File.pathSeparator) }, new File("."));
     }
