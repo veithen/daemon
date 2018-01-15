@@ -37,7 +37,7 @@ import org.apache.commons.daemon.Daemon;
  */
 final class ControlConnectionReader implements Runnable {
     private final BufferedReader in;
-    private final LinkedList queue = new LinkedList();
+    private final LinkedList<String> queue = new LinkedList<>();
     private boolean expectClose;
     
     ControlConnectionReader(Reader in) {

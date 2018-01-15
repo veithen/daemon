@@ -21,14 +21,13 @@ package com.github.veithen.daemon.maven;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 
 public class DefaultDaemonManager implements DaemonManager, LogEnabled {
-    private final List daemons = new ArrayList();
+    private final List<RemoteDaemon> daemons = new ArrayList<>();
     
     private Logger logger;
     
@@ -50,8 +49,7 @@ public class DefaultDaemonManager implements DaemonManager, LogEnabled {
     
     public void stopAll() throws Exception {
         Exception savedException = null;
-        for (Iterator it = daemons.iterator(); it.hasNext(); ) {
-            RemoteDaemon daemon = (RemoteDaemon)it.next();
+        for (RemoteDaemon daemon : daemons) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Stopping " + daemon.getDescription());
             }

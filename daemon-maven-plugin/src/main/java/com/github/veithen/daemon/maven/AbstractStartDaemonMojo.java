@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -94,7 +93,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
      * @required
      * @readonly
      */
-    private List remoteArtifactRepositories;
+    private List<ArtifactRepository> remoteArtifactRepositories;
     
     /**
      * @component
@@ -169,8 +168,8 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
      */
     private String pluginVersion;
     
-    private final Set/*<Artifact>*/ additionalDependencies = new HashSet();
-    private List/*<File>*/ classpath;
+    private final Set<Artifact> additionalDependencies = new HashSet<>();
+    private List<File> classpath;
     
     private Logger logger;
     
@@ -187,27 +186,26 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
         addDependency("com.github.veithen.daemon", artifactId, pluginVersion);
     }
     
-    protected final List/*<File>*/ getClasspath() throws ProjectBuildingException, InvalidDependencyVersionException, ArtifactResolutionException, ArtifactNotFoundException {
+    protected final List<File> getClasspath() throws ProjectBuildingException, InvalidDependencyVersionException, ArtifactResolutionException, ArtifactNotFoundException {
         if (classpath == null) {
             final Log log = getLog();
             
             // We need dependencies in scope test. Since this is the largest scope, we don't need
             // to do any additional filtering based on dependency scope.
-            Set projectDependencies = project.getArtifacts();
+            Set<Artifact> projectDependencies = project.getArtifacts();
             
-            final Set artifacts = new HashSet(projectDependencies);
+            final Set<Artifact> artifacts = new HashSet<>(projectDependencies);
             
             if (additionalDependencies != null) {
-                for (Iterator it = additionalDependencies.iterator(); it.hasNext(); ) {
-                    Artifact a = (Artifact)it.next();
+                for (Artifact a : additionalDependencies) {
                     if (log.isDebugEnabled()) {
                         log.debug("Resolving artifact to be added to classpath: " + a);
                     }
                     ArtifactFilter filter = new ArtifactFilter() {
                         public boolean include(Artifact artifact) {
                             String id = artifact.getDependencyConflictId();
-                            for (Iterator it = artifacts.iterator(); it.hasNext(); ) {
-                                if (id.equals(((Artifact)it.next()).getDependencyConflictId())) {
+                            for (Artifact a2 : artifacts) {
+                                if (id.equals(a2.getDependencyConflictId())) {
                                     return false;
                                 }
                             }
@@ -216,7 +214,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
                     };
                     MavenProject p = projectBuilder.buildFromRepository(a, remoteArtifactRepositories, localRepository);
                     if (filter.include(p.getArtifact())) {
-                        Set s = p.createArtifacts(artifactFactory, Artifact.SCOPE_RUNTIME, filter);
+                        Set<Artifact> s = p.createArtifacts(artifactFactory, Artifact.SCOPE_RUNTIME, filter);
                         artifacts.addAll(artifactCollector.collect(s,
                                 p.getArtifact(), p.getManagedVersionMap(),
                                 localRepository, remoteArtifactRepositories, artifactMetadataSource, filter,
@@ -226,11 +224,10 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
                 }
             }
             
-            classpath = new ArrayList();
+            classpath = new ArrayList<>();
             classpath.add(new File(project.getBuild().getTestOutputDirectory()));
             classpath.add(new File(project.getBuild().getOutputDirectory()));
-            for (Iterator it = artifacts.iterator(); it.hasNext(); ) {
-                Artifact a = (Artifact)it.next();
+            for (Artifact a : artifacts) {
                 if (a.getArtifactHandler().isAddedToClasspath()) {
                     if (a.getFile() == null) {
                         artifactResolver.resolve(a, remoteArtifactRepositories, localRepository);
@@ -272,7 +269,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
         int controlPort = allocatePort();
         
         // Get class path
-        List classpath;
+        List<File> classpath;
         try {
             classpath = getClasspath();
         } catch (Exception ex) {
@@ -283,7 +280,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
         }
         
         // Compute JVM arguments
-        List vmArgs = new ArrayList();
+        List<String> vmArgs = new ArrayList<>();
         if (debug) {
             processVMArgs(vmArgs, debugArgs);
         }
@@ -297,7 +294,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
             log.debug("Additional VM args: " + vmArgs);
         }
         
-        List cmdline = new ArrayList();
+        List<String> cmdline = new ArrayList<>();
         cmdline.add(jvm);
         cmdline.add("-cp");
         cmdline.add(StringUtils.join(classpath.iterator(), File.pathSeparator));
@@ -317,7 +314,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
         }
     }
     
-    private static void processVMArgs(List vmArgs, String args) {
+    private static void processVMArgs(List<String> vmArgs, String args) {
         vmArgs.addAll(Arrays.asList(args.split(" ")));
     }
 
