@@ -43,7 +43,7 @@
     </scm>
 
     <properties>
-        <maven.version>2.0.9</maven.version>
+        <maven.version>3.0</maven.version>
     </properties>
 
     <dependencies>
@@ -54,7 +54,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-project</artifactId>
+            <artifactId>maven-core</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-compat</artifactId>
             <version>${maven.version}</version>
         </dependency>
         <dependency>

@@ -38,6 +38,7 @@ import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.resolver.DebugResolutionListener;
+import org.apache.maven.artifact.resolver.ResolutionListener;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -219,7 +220,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
                         artifacts.addAll(artifactCollector.collect(s,
                                 p.getArtifact(), p.getManagedVersionMap(),
                                 localRepository, remoteArtifactRepositories, artifactMetadataSource, filter,
-                                Collections.singletonList(new DebugResolutionListener(logger))).getArtifacts());
+                                Collections.<ResolutionListener>singletonList(new DebugResolutionListener(logger))).getArtifacts());
                         artifacts.add(p.getArtifact());
                     }
                 }
