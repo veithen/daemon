@@ -12,6 +12,7 @@
 
     <properties>
         <skipDeploy>true</skipDeploy>
+        <argLine>@argLine@</argLine>
     </properties>
 
     <dependencies>
