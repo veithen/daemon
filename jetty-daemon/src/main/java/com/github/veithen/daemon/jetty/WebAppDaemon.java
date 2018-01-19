@@ -28,10 +28,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
-import org.mortbay.resource.Resource;
-import org.mortbay.resource.ResourceCollection;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceCollection;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 /**
  * 
