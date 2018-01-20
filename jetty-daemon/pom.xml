@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>7.6.21.v20160908</version>
+            <version>9.2.24.v20180105</version>
         </dependency>
     </dependencies>
 
