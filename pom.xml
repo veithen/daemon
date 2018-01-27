@@ -58,6 +58,7 @@
 
     <properties>
         <github.repository>daemon</github.repository>
+        <javaVersion>1.7</javaVersion>
     </properties>
 
     <dependencyManagement>
