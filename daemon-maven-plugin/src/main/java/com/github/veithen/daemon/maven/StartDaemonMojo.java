@@ -23,36 +23,33 @@ import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
  * Start a daemon.
- * 
- * @goal start-daemon
- * @phase pre-integration-test
- * @requiresDependencyResolution test
  */
+@Mojo(name="start-daemon", defaultPhase=LifecyclePhase.PRE_INTEGRATION_TEST,
+      requiresDependencyResolution=ResolutionScope.TEST)
 public class StartDaemonMojo extends AbstractStartDaemonMojo {
     /**
      * The daemon class.
-     * 
-     * @parameter
-     * @required
      */
+    @Parameter(required=true)
     private String daemonClass;
     
     /**
      * The arguments to be passed to the main class.
-     * 
-     * @parameter
      */
+    @Parameter
     private String[] args;
     
     /**
      * The working directory for the process.
-     * 
-     * @parameter default-value="${project.build.directory}/work"
-     * @required
      */
+    @Parameter(defaultValue="${project.build.directory}/work", required=true)
     private File workDir;
 
     protected void doStartDaemon() throws MojoExecutionException, MojoFailureException {

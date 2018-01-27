@@ -22,14 +22,13 @@ package com.github.veithen.daemon.maven;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugins.annotations.Parameter;
 
 public abstract class AbstractStartWebServerMojo extends AbstractStartDaemonMojo {
     /**
      * The HTTP port.
-     * 
-     * @parameter default-value="8080"
-     * @required
      */
+    @Parameter(defaultValue="8080", required=true)
     private int port;
 
     /**
@@ -37,11 +36,10 @@ public abstract class AbstractStartWebServerMojo extends AbstractStartDaemonMojo
      * server has been started. This is useful if one wants to manually test some services deployed
      * on the server or if one wants to run the integration tests from an IDE. The flag should only
      * be set using the command line, but not in the POM.
-     * 
-     * @parameter expression="${axis.server.foreground}" default-value="false"
      */
     // Note: this feature is implemented using a flag (instead of a distinct goal) to make sure that
     // the server is configured in exactly the same way as in a normal integration test execution.
+    @Parameter(property="axis.server.foreground", defaultValue="false")
     private boolean foreground;
     
     /**
@@ -50,9 +48,8 @@ public abstract class AbstractStartWebServerMojo extends AbstractStartDaemonMojo
      * the {@link #port} parameter is allocated dynamically. This makes it easier to run integration
      * tests from an IDE. For more information, see the <a href="usage.html">usage
      * documentation</a>.
-     * 
-     * @parameter
      */
+    @Parameter
     private int foregroundPort = -1;
     
     protected final void doStartDaemon() throws MojoExecutionException, MojoFailureException {

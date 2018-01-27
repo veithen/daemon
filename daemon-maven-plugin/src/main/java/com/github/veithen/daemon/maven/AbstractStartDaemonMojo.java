@@ -44,6 +44,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
@@ -57,98 +59,70 @@ import org.codehaus.plexus.util.StringUtils;
 public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo implements LogEnabled {
     /**
      * The maven project.
-     *
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
      */
+    @Parameter(property="project", required=true, readonly=true)
     private MavenProject project;
     
     /**
      * The current build session instance. This is used for toolchain manager API calls.
-     * 
-     * @parameter default-value="${session}"
-     * @required
-     * @readonly
      */
+    @Parameter(property="session", required=true, readonly=true)
     private MavenSession session;
     
-    /**
-     * @component
-     */
+    @Component
     private MavenProjectBuilder projectBuilder;
     
     /**
      * Local maven repository.
-     * 
-     * @parameter expression="${localRepository}"
-     * @required
-     * @readonly
      */
+    @Parameter(property="localRepository", required=true, readonly=true)
     private ArtifactRepository localRepository;
     
     /**
      * Remote repositories.
-     * 
-     * @parameter expression="${project.remoteArtifactRepositories}"
-     * @required
-     * @readonly
      */
+    @Parameter(property="project.remoteArtifactRepositories", required=true, readonly=true)
     private List<ArtifactRepository> remoteArtifactRepositories;
     
-    /**
-     * @component
-     */
+    @Component
     private ArtifactFactory artifactFactory;
     
-    /**
-     * @component
-     */
+    @Component
     private ArtifactResolver artifactResolver;
     
-    /**
-     * @component
-     */
+    @Component
     private ArtifactCollector artifactCollector;
     
-    /**
-     * @component
-     */
+    @Component
     private ArtifactMetadataSource artifactMetadataSource;
     
-    /**
-     * @component
-     */
+    @Component
     private ToolchainManager toolchainManager;
     
     /**
      * The arguments to pass to the JVM when debug mode is enabled.
-     * 
-     * @parameter default-value="-Xdebug -Xrunjdwp:transport=dt_socket,address=8899,server=y,suspend=y"
      */
+    @Parameter(defaultValue="-Xdebug -Xrunjdwp:transport=dt_socket,address=8899,server=y,suspend=y")
     private String debugArgs;
     
     /**
      * Indicates whether the Java process should be started in debug mode. This flag should only be
      * set from the command line.
-     * 
-     * @parameter expression="${axis.server.debug}" default-value="false"
      */
+    @Parameter(property="axis.server.debug", defaultValue="false")
     private boolean debug;
     
     /**
      * The arguments to pass to the JVM when JMX is enabled.
-     * 
-     * @parameter default-value="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
      */
+    @Parameter(defaultValue="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false")
     private String jmxArgs;
     
     /**
      * Indicates whether the Java process should be started with remote JMX enabled. This flag
      * should only be set from the command line.
-     * 
-     * @parameter expression="${axis.server.jmx}" default-value="false"
      */
+    @Parameter(property="axis.server.jmx", defaultValue="false")
     private boolean jmx;
     
     /**
@@ -157,16 +131,11 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
      * property, it is therefore possible to easily pass a common set of JVM options to all
      * processes involved in the tests. Since the JaCoCo Maven plugin also sets this property, code
      * coverage generated on the server-side will be automatically included in the analysis.
-     * 
-     * @parameter expression="${argLine}"
      */
+    @Parameter(property="argLine")
     private String argLine;
     
-    /**
-     * @parameter default-value="${plugin.version}"
-     * @required
-     * @readonly
-     */
+    @Parameter(property="plugin.version", required=true, readonly=true)
     private String pluginVersion;
     
     private final Set<Artifact> additionalDependencies = new HashSet<>();

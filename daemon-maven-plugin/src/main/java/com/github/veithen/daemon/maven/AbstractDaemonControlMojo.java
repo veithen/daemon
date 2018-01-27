@@ -22,28 +22,25 @@ package com.github.veithen.daemon.maven;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.github.veithen.ulog.PlexusLoggerInjector;
 
 public abstract class AbstractDaemonControlMojo extends AbstractMojo {
-    /**
-     * @component
-     */
+    @Component
     // This is necessary to set up logging such that all messages logged by the Axis
     // libraries through commons logging are redirected to Plexus logs.
     PlexusLoggerInjector loggerInjector;
     
-    /**
-     * @component
-     */
+    @Component
     private DaemonManager daemonManager;
 
     /**
      * Set this to <code>true</code> to skip running tests, but still compile them. This is the same
      * flag that is also used by the Surefire and Failsafe plugins.
-     * 
-     * @parameter expression="${skipTests}" default-value="false"
      */
+    @Parameter(property="skipTests", defaultValue="false")
     private boolean skipTests;
     
     public final DaemonManager getDaemonManager() {

@@ -23,22 +23,16 @@ import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.StringUtils;
 
-/**
- * 
- * 
- * @goal start-webapp
- * @phase pre-integration-test
- * @requiresDependencyResolution test
- */
+@Mojo(name="start-webapp", defaultPhase=LifecyclePhase.PRE_INTEGRATION_TEST,
+      requiresDependencyResolution=ResolutionScope.TEST)
 public class StartWebAppMojo extends AbstractStartWebServerMojo {
-    /**
-     * 
-     * 
-     * @parameter
-     * @required
-     */
+    @Parameter(required=true)
     private File[] resourceBases;
     
     protected void doStartDaemon(int port) throws MojoExecutionException, MojoFailureException {
