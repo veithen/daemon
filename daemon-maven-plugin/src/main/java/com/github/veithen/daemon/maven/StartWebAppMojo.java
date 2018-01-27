@@ -20,6 +20,9 @@
 package com.github.veithen.daemon.maven;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -35,9 +38,18 @@ public class StartWebAppMojo extends AbstractStartWebServerMojo {
     @Parameter(required=true)
     private File[] resourceBases;
     
+    @Parameter()
+    private File requestLog;
+
     protected void doStartDaemon(int port) throws MojoExecutionException, MojoFailureException {
         addDependency("jetty-daemon");
+        List<String> args = new ArrayList<>(Arrays.asList(
+                "-p", String.valueOf(port), "-r", StringUtils.join(resourceBases, File.pathSeparator)));
+        if (requestLog != null) {
+            args.add("-l");
+            args.add(requestLog.getAbsolutePath());
+        }
         startDaemon("HTTP server on port " + port, "com.github.veithen.daemon.jetty.WebAppDaemon",
-                new String[] { "-p", String.valueOf(port), "-r", StringUtils.join(resourceBases, File.pathSeparator) }, new File("."));
+                args.toArray(new String[args.size()]), new File("."));
     }
 }

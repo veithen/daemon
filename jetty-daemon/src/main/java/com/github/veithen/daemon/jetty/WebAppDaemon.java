@@ -29,7 +29,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
+import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -59,17 +62,33 @@ public class WebAppDaemon implements Daemon {
             options.addOption(option);
         }
         
+        {
+            Option option = new Option("l", true, "enable request logging");
+            option.setArgName("request-log");
+            options.addOption(option);
+        }
+        
         CommandLineParser parser = new GnuParser();
         CommandLine cmdLine = parser.parse(options, daemonContext.getArguments());
         
         server = new Server(Integer.parseInt(cmdLine.getOptionValue("p")));
-        WebAppContext context = new WebAppContext(server, null, "/");
+        HandlerCollection handlers = new HandlerCollection();
+        server.setHandler(handlers);
+        
+        WebAppContext context = new WebAppContext(handlers, null, "/");
         String[] resourceDirs = cmdLine.getOptionValue("r").split(File.pathSeparator);
         Resource[] resources = new Resource[resourceDirs.length];
         for (int i=0; i<resourceDirs.length; i++) {
             resources[i] = Resource.newResource(resourceDirs[i]);
         }
         context.setBaseResource(new ResourceCollection(resources));
+        
+        String requestLog = cmdLine.getOptionValue("l");
+        if (requestLog != null) {
+            RequestLogHandler requestLogHandler = new RequestLogHandler();
+            requestLogHandler.setRequestLog(new NCSARequestLog(requestLog));
+            handlers.addHandler(requestLogHandler);
+        }
     }
 
     public void start() throws Exception {
