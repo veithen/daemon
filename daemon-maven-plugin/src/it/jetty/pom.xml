@@ -81,7 +81,7 @@
                         <configuration>
                             <port>${jetty.httpPort}</port>
                             <resourceBases>
-                                <resourceBase>${project.basedir}/src/test/webapp</resourceBase>
+                                <resourceBase>src/test/webapp</resourceBase>
                             </resourceBases>
                         </configuration>
                     </execution>
