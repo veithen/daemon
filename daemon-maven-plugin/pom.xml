@@ -101,11 +101,23 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.github.veithen.invoker</groupId>
+                <artifactId>resolver-proxy-maven-plugin</artifactId>
+                <version>0.1-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>start</goal>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-invoker-plugin</artifactId>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>install</goal>
                             <goal>run</goal>
                         </goals>
                         <configuration>
@@ -113,6 +125,8 @@
                             <goals>
                                 <goal>verify</goal>
                             </goals>
+                            <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                            <settingsFile>src/it/settings.xml</settingsFile>
                         </configuration>
                     </execution>
                 </executions>
