@@ -21,18 +21,14 @@
 <settings>
     <profiles>
         <profile>
-            <id>it-repo</id>
+            <id>local-snapshots</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <repositories>
                 <repository>
-                    <id>local.central</id>
+                    <id>local-snapshots</id>
                     <url>http://localhost:@resolverProxyPort@</url>
-                    <releases>
-                        <enabled>true</enabled>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </releases>
                     <snapshots>
                         <enabled>true</enabled>
                         <checksumPolicy>ignore</checksumPolicy>
@@ -41,12 +37,8 @@
             </repositories>
             <pluginRepositories>
                 <pluginRepository>
-                    <id>local.central</id>
+                    <id>local-snapshots</id>
                     <url>http://localhost:@resolverProxyPort@</url>
-                    <releases>
-                        <enabled>true</enabled>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </releases>
                     <snapshots>
                         <enabled>true</enabled>
                         <checksumPolicy>ignore</checksumPolicy>
@@ -55,4 +47,12 @@
             </pluginRepositories>
         </profile>
     </profiles>
+    <mirrors>
+        <mirror>
+            <id>resolver-proxy</id>
+            <name>Resolver Proxy</name>
+            <url>http://localhost:@resolverProxyPort@</url>
+            <mirrorOf>*,!local-snapshots</mirrorOf>
+        </mirror>
+    </mirrors>
 </settings>
