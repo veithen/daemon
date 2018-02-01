@@ -125,8 +125,6 @@
                             <goals>
                                 <goal>verify</goal>
                             </goals>
-                            <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
-                            <settingsFile>src/it/settings.xml</settingsFile>
                         </configuration>
                     </execution>
                 </executions>
