@@ -30,8 +30,8 @@ import org.apache.commons.daemon.Daemon;
  * possible when the control connection is closed by the parent process and to terminate the child
  * process if that is unexpected. To achieve this we need to read the messages eagerly and place
  * them into a queue. In particular this covers the case where the child process has received a
- * <tt>STOP</tt> message and {@link Daemon#stop()} or {@link Daemon#destroy()} hangs. In this case,
- * if the parent process is terminated (or stops waiting for the <tt>STOPPED</tt> message and closes
+ * {@code STOP} message and {@link Daemon#stop()} or {@link Daemon#destroy()} hangs. In this case,
+ * if the parent process is terminated (or stops waiting for the {@code STOPPED} message and closes
  * the control connection), we can stop the child process immediately.
  * 
  * @author Andreas Veithen

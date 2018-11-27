@@ -50,13 +50,13 @@ import org.apache.commons.daemon.DaemonContext;
  * <li>The parent process connects to the control port.
  * <li>The child process {@link Daemon#init(DaemonContext) initializes} and {@link Daemon#start()
  * starts} the daemon.
- * <li>The child process sends a <tt>READY</tt> message over the control connection to the parent
+ * <li>The child process sends a {@code READY} message over the control connection to the parent
  * process.
- * <li>When the parent process no longer needs the daemon, it sends a <tt>STOP</tt> message to the
+ * <li>When the parent process no longer needs the daemon, it sends a {@code STOP} message to the
  * child process.
  * <li>The child process {@link Daemon#stop() stops} and {@link Daemon#destroy() destroys} the
  * daemon.
- * <li>The child process sends a <tt>STOPPED</tt> message to the parent process, closes the control
+ * <li>The child process sends a {@code STOPPED} message to the parent process, closes the control
  * connection and terminates itself.
  * <li>The parent process closes the control connection.
  * </ol>
