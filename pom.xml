@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.github.veithen</groupId>
         <artifactId>parent</artifactId>
-        <version>8</version>
+        <version>13</version>
     </parent>
 
     <groupId>com.github.veithen.daemon</groupId>
