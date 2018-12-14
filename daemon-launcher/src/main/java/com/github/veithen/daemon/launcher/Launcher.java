@@ -63,7 +63,9 @@ import org.apache.commons.daemon.DaemonContext;
  * 
  * @author Andreas Veithen
  */
-public class Launcher {
+public final class Launcher {
+    private Launcher() {}
+
     public static void main(String[] args) {
         try {
             String daemonClass = args[0];
