@@ -61,6 +61,7 @@
                             <resourceBases>
                                 <resourceBase>src/test/webapp</resourceBase>
                             </resourceBases>
+                            <argLine>@argLine@</argLine>
                             <requestLog>${project.build.directory}/request.log</requestLog>
                         </configuration>
                     </execution>

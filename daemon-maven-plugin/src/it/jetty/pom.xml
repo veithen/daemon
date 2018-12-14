@@ -84,6 +84,7 @@
                             <resourceBases>
                                 <resourceBase>src/test/webapp</resourceBase>
                             </resourceBases>
+                            <argLine>@argLine@</argLine>
                         </configuration>
                     </execution>
                     <execution>
