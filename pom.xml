@@ -46,7 +46,6 @@
         <module>daemon-launcher</module>
         <module>jetty-daemon</module>
         <module>daemon-maven-plugin</module>
-        <module>code-coverage</module>
     </modules>
 
     <scm>
