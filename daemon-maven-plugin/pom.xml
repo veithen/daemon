@@ -101,9 +101,15 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>com.github.veithen.maven</groupId>
+                <artifactId>hermetic-maven-plugin</artifactId>
+                <configuration>
+                    <allowExec>true</allowExec>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.github.veithen.invoker</groupId>
                 <artifactId>resolver-proxy-maven-plugin</artifactId>
-                <version>0.1.1</version>
                 <executions>
                     <execution>
                         <goals>
