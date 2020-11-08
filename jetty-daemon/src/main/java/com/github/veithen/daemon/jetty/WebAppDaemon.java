@@ -75,7 +75,7 @@ public class WebAppDaemon implements Daemon {
         HandlerCollection handlers = new HandlerCollection();
         server.setHandler(handlers);
         
-        WebAppContext context = new WebAppContext(handlers, null, "/");
+        WebAppContext context = new WebAppContext(handlers, (Resource)null, "/");
         String[] resourceDirs = cmdLine.getOptionValue("r").split(File.pathSeparator);
         Resource[] resources = new Resource[resourceDirs.length];
         for (int i=0; i<resourceDirs.length; i++) {
