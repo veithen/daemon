@@ -29,7 +29,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
-import org.eclipse.jetty.server.NCSARequestLog;
+import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
@@ -86,7 +86,7 @@ public class WebAppDaemon implements Daemon {
         String requestLog = cmdLine.getOptionValue("l");
         if (requestLog != null) {
             RequestLogHandler requestLogHandler = new RequestLogHandler();
-            requestLogHandler.setRequestLog(new NCSARequestLog(requestLog));
+            requestLogHandler.setRequestLog(new CustomRequestLog(requestLog, CustomRequestLog.EXTENDED_NCSA_FORMAT));
             handlers.addHandler(requestLogHandler);
         }
     }
