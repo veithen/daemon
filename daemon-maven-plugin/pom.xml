@@ -80,12 +80,6 @@
             <version>1.0</version>
         </dependency>
         
-        <dependency>
-            <groupId>com.google.truth</groupId>
-            <artifactId>truth</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
         <!-- These dependencies are here merely to ensure that in the Axis build they are built
              before this project. This is necessary because these artifacts may be loaded by
              the plug-in at runtime and we need to make sure that they are available and that
@@ -127,7 +121,6 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <addTestClassPath>true</addTestClassPath>
                             <goals>
                                 <goal>verify</goal>
                             </goals>

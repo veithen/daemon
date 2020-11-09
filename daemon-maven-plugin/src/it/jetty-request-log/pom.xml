@@ -25,8 +25,31 @@
     <artifactId>jetty-request-log</artifactId>
     <version>1</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.truth</groupId>
+            <artifactId>truth</artifactId>
+            <version>1.0.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -74,36 +97,21 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.9.0</version>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.22.1</version>
                 <executions>
                     <execution>
-                        <phase>integration-test</phase>
                         <goals>
-                            <goal>execute</goal>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
                         </goals>
                         <configuration>
-                            <scripts>
-                                <script><![CDATA[
-                                    System.out << new URL('http://localhost:' + project.properties['jetty.httpPort'] + '/somefile.txt').openStream();
-                                ]]></script>
-                            </scripts>
+                            <systemPropertyVariables>
+                                <jetty.httpPort>${jetty.httpPort}</jetty.httpPort>
+                            </systemPropertyVariables>
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy</artifactId>
-                        <version>3.0.4</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-ant</artifactId>
-                        <version>3.0.4</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
