@@ -31,8 +31,6 @@ import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -72,10 +70,9 @@ public class WebAppDaemon implements Daemon {
         CommandLine cmdLine = parser.parse(options, daemonContext.getArguments());
         
         server = new Server(Integer.parseInt(cmdLine.getOptionValue("p")));
-        HandlerCollection handlers = new HandlerCollection();
-        server.setHandler(handlers);
         
-        WebAppContext context = new WebAppContext(handlers, (Resource)null, "/");
+        WebAppContext context = new WebAppContext(server, (Resource)null, "/");
+        server.setHandler(context);
         String[] resourceDirs = cmdLine.getOptionValue("r").split(File.pathSeparator);
         Resource[] resources = new Resource[resourceDirs.length];
         for (int i=0; i<resourceDirs.length; i++) {
@@ -85,9 +82,7 @@ public class WebAppDaemon implements Daemon {
         
         String requestLog = cmdLine.getOptionValue("l");
         if (requestLog != null) {
-            RequestLogHandler requestLogHandler = new RequestLogHandler();
-            requestLogHandler.setRequestLog(new CustomRequestLog(requestLog, CustomRequestLog.EXTENDED_NCSA_FORMAT));
-            handlers.addHandler(requestLogHandler);
+            server.setRequestLog(new CustomRequestLog(requestLog, CustomRequestLog.EXTENDED_NCSA_FORMAT));
         }
     }
 
