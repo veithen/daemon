@@ -30,6 +30,27 @@ import java.net.URL;
 import org.junit.Test;
 
 public class JettyITCase {
+    private interface Action {
+        void run() throws Exception;
+    }
+
+    private static void withRetry(Action action) throws Exception {
+        int retries = 0;
+        while (true) {
+            try {
+                action.run();
+                return;
+            } catch (AssertionError ex) {
+                if (retries < 50) {
+                    retries++;
+                    Thread.sleep(100);
+                } else {
+                    throw ex;
+                }
+            }
+        }
+    }
+
     @Test
     public void test() throws Exception {
         HttpURLConnection c = (HttpURLConnection)new URL(
@@ -37,9 +58,11 @@ public class JettyITCase {
         assertThat(c.getResponseCode()).isEqualTo(200);
         c.disconnect();
     
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream("target/request.log"), "utf-8"))) {
-            assertThat(in.readLine()).contains("GET /somefile.txt");
-            assertThat(in.readLine()).isNull();
-        }
+        withRetry(() -> {
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream("target/request.log"), "utf-8"))) {
+                assertThat(in.readLine()).contains("GET /somefile.txt");
+                assertThat(in.readLine()).isNull();
+            }
+        });
     }
 }
