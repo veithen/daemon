@@ -18,7 +18,7 @@
   limitations under the License.
   #L%
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -102,7 +102,7 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.github.veithen.invoker</groupId>
+                <groupId>com.github.veithen.maven</groupId>
                 <artifactId>resolver-proxy-maven-plugin</artifactId>
                 <executions>
                     <execution>
