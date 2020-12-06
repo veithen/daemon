@@ -4,3 +4,11 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+  - package-ecosystem: "maven"
+    directory: "/daemon-maven-plugin/src/it/jetty"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "maven"
+    directory: "//daemon-maven-plugin/src/it/jetty-request-log"
+    schedule:
+      interval: "daily"
