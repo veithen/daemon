@@ -4,6 +4,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "org.eclipse.jetty:jetty-webapp"
+        versions: ">= 10.0"
   - package-ecosystem: "maven"
     directory: "/daemon-maven-plugin/src/it/jetty"
     schedule:
