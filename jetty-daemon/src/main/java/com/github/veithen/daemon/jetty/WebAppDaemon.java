@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,54 +35,51 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-/**
- * 
- * 
- * @author Andreas Veithen
- */
+/** @author Andreas Veithen */
 public class WebAppDaemon implements Daemon {
     private Server server;
-    
+
     public void init(DaemonContext daemonContext) throws DaemonInitException, Exception {
         Options options = new Options();
-        
+
         {
             Option option = new Option("p", true, "the HTTP port");
             option.setArgName("port");
             option.setRequired(true);
             options.addOption(option);
         }
-        
+
         {
             Option option = new Option("r", true, "a list of resource directories");
             option.setArgName("dirs");
             option.setRequired(true);
             options.addOption(option);
         }
-        
+
         {
             Option option = new Option("l", true, "enable request logging");
             option.setArgName("request-log");
             options.addOption(option);
         }
-        
+
         CommandLineParser parser = new GnuParser();
         CommandLine cmdLine = parser.parse(options, daemonContext.getArguments());
-        
+
         server = new Server(Integer.parseInt(cmdLine.getOptionValue("p")));
-        
-        WebAppContext context = new WebAppContext(server, (Resource)null, "/");
+
+        WebAppContext context = new WebAppContext(server, (Resource) null, "/");
         server.setHandler(context);
         String[] resourceDirs = cmdLine.getOptionValue("r").split(File.pathSeparator);
         Resource[] resources = new Resource[resourceDirs.length];
-        for (int i=0; i<resourceDirs.length; i++) {
+        for (int i = 0; i < resourceDirs.length; i++) {
             resources[i] = Resource.newResource(resourceDirs[i]);
         }
         context.setBaseResource(new ResourceCollection(resources));
-        
+
         String requestLog = cmdLine.getOptionValue("l");
         if (requestLog != null) {
-            server.setRequestLog(new CustomRequestLog(requestLog, CustomRequestLog.EXTENDED_NCSA_FORMAT));
+            server.setRequestLog(
+                    new CustomRequestLog(requestLog, CustomRequestLog.EXTENDED_NCSA_FORMAT));
         }
     }
 

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,29 +33,29 @@ import org.apache.commons.daemon.Daemon;
  * {@code STOP} message and {@link Daemon#stop()} or {@link Daemon#destroy()} hangs. In this case,
  * if the parent process is terminated (or stops waiting for the {@code STOPPED} message and closes
  * the control connection), we can stop the child process immediately.
- * 
+ *
  * @author Andreas Veithen
  */
 final class ControlConnectionReader implements Runnable {
     private final BufferedReader in;
     private final LinkedList<String> queue = new LinkedList<>();
     private boolean expectClose;
-    
+
     ControlConnectionReader(Reader in) {
         this.in = new BufferedReader(in);
     }
-    
+
     synchronized String awaitMessage() throws InterruptedException {
         while (queue.isEmpty()) {
             wait();
         }
-        return (String)queue.removeFirst();
+        return (String) queue.removeFirst();
     }
-    
+
     synchronized void expectClose() {
         this.expectClose = true;
     }
-    
+
     public void run() {
         try {
             String message;

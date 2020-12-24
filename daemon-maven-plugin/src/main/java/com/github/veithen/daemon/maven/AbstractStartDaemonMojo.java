@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,75 +56,61 @@ import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
 
-public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo implements LogEnabled {
-    /**
-     * The maven project.
-     */
-    @Parameter(property="project", required=true, readonly=true)
+public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
+        implements LogEnabled {
+    /** The maven project. */
+    @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
-    
-    /**
-     * The current build session instance. This is used for toolchain manager API calls.
-     */
-    @Parameter(property="session", required=true, readonly=true)
+
+    /** The current build session instance. This is used for toolchain manager API calls. */
+    @Parameter(property = "session", required = true, readonly = true)
     private MavenSession session;
-    
-    @Component
-    private MavenProjectBuilder projectBuilder;
-    
-    /**
-     * Local maven repository.
-     */
-    @Parameter(property="localRepository", required=true, readonly=true)
+
+    @Component private MavenProjectBuilder projectBuilder;
+
+    /** Local maven repository. */
+    @Parameter(property = "localRepository", required = true, readonly = true)
     private ArtifactRepository localRepository;
-    
-    /**
-     * Remote repositories.
-     */
-    @Parameter(property="project.remoteArtifactRepositories", required=true, readonly=true)
+
+    /** Remote repositories. */
+    @Parameter(property = "project.remoteArtifactRepositories", required = true, readonly = true)
     private List<ArtifactRepository> remoteArtifactRepositories;
-    
-    @Component
-    private ArtifactFactory artifactFactory;
-    
-    @Component
-    private ArtifactResolver artifactResolver;
-    
-    @Component
-    private ArtifactCollector artifactCollector;
-    
-    @Component
-    private ArtifactMetadataSource artifactMetadataSource;
-    
-    @Component
-    private ToolchainManager toolchainManager;
-    
-    /**
-     * The arguments to pass to the JVM when debug mode is enabled.
-     */
-    @Parameter(defaultValue="-Xdebug -Xrunjdwp:transport=dt_socket,address=8899,server=y,suspend=y")
+
+    @Component private ArtifactFactory artifactFactory;
+
+    @Component private ArtifactResolver artifactResolver;
+
+    @Component private ArtifactCollector artifactCollector;
+
+    @Component private ArtifactMetadataSource artifactMetadataSource;
+
+    @Component private ToolchainManager toolchainManager;
+
+    /** The arguments to pass to the JVM when debug mode is enabled. */
+    @Parameter(
+            defaultValue = "-Xdebug -Xrunjdwp:transport=dt_socket,address=8899,server=y,suspend=y")
     private String debugArgs;
-    
+
     /**
      * Indicates whether the Java process should be started in debug mode. This flag should only be
      * set from the command line.
      */
-    @Parameter(property="axis.server.debug", defaultValue="false")
+    @Parameter(property = "axis.server.debug", defaultValue = "false")
     private boolean debug;
-    
-    /**
-     * The arguments to pass to the JVM when JMX is enabled.
-     */
-    @Parameter(defaultValue="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false")
+
+    /** The arguments to pass to the JVM when JMX is enabled. */
+    @Parameter(
+            defaultValue =
+                    "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false")
     private String jmxArgs;
-    
+
     /**
      * Indicates whether the Java process should be started with remote JMX enabled. This flag
      * should only be set from the command line.
      */
-    @Parameter(property="axis.server.jmx", defaultValue="false")
+    @Parameter(property = "axis.server.jmx", defaultValue = "false")
     private boolean jmx;
-    
+
     /**
      * Arbitrary JVM options to set on the command line. Note that this parameter uses the same
      * expression as the Surefire and Failsafe plugins. By setting the <code>argLine</code>
@@ -132,68 +118,85 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
      * processes involved in the tests. Since the JaCoCo Maven plugin also sets this property, code
      * coverage generated on the server-side will be automatically included in the analysis.
      */
-    @Parameter(property="argLine")
+    @Parameter(property = "argLine")
     private String argLine;
-    
-    @Parameter(property="plugin.version", required=true, readonly=true)
+
+    @Parameter(property = "plugin.version", required = true, readonly = true)
     private String pluginVersion;
-    
+
     private final Set<Artifact> additionalDependencies = new HashSet<>();
     private List<File> classpath;
-    
+
     private Logger logger;
-    
+
     public final void enableLogging(Logger logger) {
         this.logger = logger;
     }
-    
+
     protected final void addDependency(String groupId, String artifactId, String version) {
-        additionalDependencies.add(artifactFactory.createArtifact(groupId, artifactId, version, Artifact.SCOPE_TEST, "jar"));
+        additionalDependencies.add(
+                artifactFactory.createArtifact(
+                        groupId, artifactId, version, Artifact.SCOPE_TEST, "jar"));
         classpath = null;
     }
-    
+
     protected final void addDependency(String artifactId) {
         addDependency("com.github.veithen.daemon", artifactId, pluginVersion);
     }
-    
-    protected final List<File> getClasspath() throws ProjectBuildingException, InvalidDependencyVersionException, ArtifactResolutionException, ArtifactNotFoundException {
+
+    protected final List<File> getClasspath()
+            throws ProjectBuildingException, InvalidDependencyVersionException,
+                    ArtifactResolutionException, ArtifactNotFoundException {
         if (classpath == null) {
             final Log log = getLog();
-            
+
             // We need dependencies in scope test. Since this is the largest scope, we don't need
             // to do any additional filtering based on dependency scope.
             Set<Artifact> projectDependencies = project.getArtifacts();
-            
+
             final Set<Artifact> artifacts = new HashSet<>(projectDependencies);
-            
+
             if (additionalDependencies != null) {
                 for (Artifact a : additionalDependencies) {
                     if (log.isDebugEnabled()) {
                         log.debug("Resolving artifact to be added to classpath: " + a);
                     }
-                    ArtifactFilter filter = new ArtifactFilter() {
-                        public boolean include(Artifact artifact) {
-                            String id = artifact.getDependencyConflictId();
-                            for (Artifact a2 : artifacts) {
-                                if (id.equals(a2.getDependencyConflictId())) {
-                                    return false;
+                    ArtifactFilter filter =
+                            new ArtifactFilter() {
+                                public boolean include(Artifact artifact) {
+                                    String id = artifact.getDependencyConflictId();
+                                    for (Artifact a2 : artifacts) {
+                                        if (id.equals(a2.getDependencyConflictId())) {
+                                            return false;
+                                        }
+                                    }
+                                    return true;
                                 }
-                            }
-                            return true;
-                        }
-                    };
-                    MavenProject p = projectBuilder.buildFromRepository(a, remoteArtifactRepositories, localRepository);
+                            };
+                    MavenProject p =
+                            projectBuilder.buildFromRepository(
+                                    a, remoteArtifactRepositories, localRepository);
                     if (filter.include(p.getArtifact())) {
-                        Set<Artifact> s = p.createArtifacts(artifactFactory, Artifact.SCOPE_RUNTIME, filter);
-                        artifacts.addAll(artifactCollector.collect(s,
-                                p.getArtifact(), p.getManagedVersionMap(),
-                                localRepository, remoteArtifactRepositories, artifactMetadataSource, filter,
-                                Collections.<ResolutionListener>singletonList(new DebugResolutionListener(logger))).getArtifacts());
+                        Set<Artifact> s =
+                                p.createArtifacts(artifactFactory, Artifact.SCOPE_RUNTIME, filter);
+                        artifacts.addAll(
+                                artifactCollector
+                                        .collect(
+                                                s,
+                                                p.getArtifact(),
+                                                p.getManagedVersionMap(),
+                                                localRepository,
+                                                remoteArtifactRepositories,
+                                                artifactMetadataSource,
+                                                filter,
+                                                Collections.<ResolutionListener>singletonList(
+                                                        new DebugResolutionListener(logger)))
+                                        .getArtifacts());
                         artifacts.add(p.getArtifact());
                     }
                 }
             }
-            
+
             classpath = new ArrayList<>();
             classpath.add(new File(project.getBuild().getTestOutputDirectory()));
             classpath.add(new File(project.getBuild().getOutputDirectory()));
@@ -206,10 +209,10 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
                 }
             }
         }
-        
+
         return classpath;
     }
-    
+
     private int allocatePort() throws MojoFailureException {
         try {
             ServerSocket ss = new ServerSocket(0);
@@ -220,24 +223,31 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
             throw new MojoFailureException("Failed to allocate port number", ex);
         }
     }
-    
-    protected final void startDaemon(String description, String daemonClass, String[] args, File workDir) throws MojoExecutionException, MojoFailureException {
+
+    protected final void startDaemon(
+            String description, String daemonClass, String[] args, File workDir)
+            throws MojoExecutionException, MojoFailureException {
         Log log = getLog();
-        
+
         // Locate java executable to use
         String jvm;
         Toolchain tc = toolchainManager.getToolchainFromBuildContext("jdk", session);
         if (tc != null) {
             jvm = tc.findTool("java");
         } else {
-            jvm = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+            jvm =
+                    System.getProperty("java.home")
+                            + File.separator
+                            + "bin"
+                            + File.separator
+                            + "java";
         }
         if (log.isDebugEnabled()) {
             log.debug("Java executable: " + jvm);
         }
-        
+
         int controlPort = allocatePort();
-        
+
         // Get class path
         List<File> classpath;
         try {
@@ -248,7 +258,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
         if (log.isDebugEnabled()) {
             log.debug("Class path elements: " + classpath);
         }
-        
+
         // Compute JVM arguments
         List<String> vmArgs = new ArrayList<>();
         if (debug) {
@@ -263,7 +273,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
         if (log.isDebugEnabled()) {
             log.debug("Additional VM args: " + vmArgs);
         }
-        
+
         List<String> cmdline = new ArrayList<>();
         cmdline.add(jvm);
         cmdline.add("-cp");
@@ -274,16 +284,17 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
         cmdline.add(String.valueOf(controlPort));
         cmdline.addAll(Arrays.asList(args));
         try {
-            getDaemonManager().startDaemon(
-                    description,
-                    (String[])cmdline.toArray(new String[cmdline.size()]),
-                    workDir,
-                    controlPort);
+            getDaemonManager()
+                    .startDaemon(
+                            description,
+                            (String[]) cmdline.toArray(new String[cmdline.size()]),
+                            workDir,
+                            controlPort);
         } catch (Exception ex) {
             throw new MojoFailureException("Failed to start server", ex);
         }
     }
-    
+
     private static void processVMArgs(List<String> vmArgs, String args) {
         vmArgs.addAll(Arrays.asList(args.split(" ")));
     }
@@ -292,6 +303,6 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
         addDependency("daemon-launcher");
         doStartDaemon();
     }
-    
+
     protected abstract void doStartDaemon() throws MojoExecutionException, MojoFailureException;
 }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,17 +32,16 @@ public abstract class AbstractDaemonControlMojo extends AbstractMojo {
     // This is necessary to set up logging such that all messages logged by the Axis
     // libraries through commons logging are redirected to Plexus logs.
     PlexusLoggerInjector loggerInjector;
-    
-    @Component
-    private DaemonManager daemonManager;
+
+    @Component private DaemonManager daemonManager;
 
     /**
      * Set this to <code>true</code> to skip running tests, but still compile them. This is the same
      * flag that is also used by the Surefire and Failsafe plugins.
      */
-    @Parameter(property="skipTests", defaultValue="false")
+    @Parameter(property = "skipTests", defaultValue = "false")
     private boolean skipTests;
-    
+
     public final DaemonManager getDaemonManager() {
         return daemonManager;
     }
@@ -54,6 +53,6 @@ public abstract class AbstractDaemonControlMojo extends AbstractMojo {
             doExecute();
         }
     }
-    
+
     protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 }

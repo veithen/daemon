@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,7 +60,8 @@ public class RemoteDaemon {
             } catch (IOException ex) {
                 try {
                     int exitValue = process.exitValue();
-                    throw new IllegalStateException("Process terminated prematurely with exit code " + exitValue);
+                    throw new IllegalStateException(
+                            "Process terminated prematurely with exit code " + exitValue);
                 } catch (IllegalThreadStateException ex2) {
                     // Process is still running; continue
                 }
@@ -68,7 +69,8 @@ public class RemoteDaemon {
             }
         }
         logger.debug("Control connection established");
-        controlIn = new BufferedReader(new InputStreamReader(controlSocket.getInputStream(), "ASCII"));
+        controlIn =
+                new BufferedReader(new InputStreamReader(controlSocket.getInputStream(), "ASCII"));
         controlOut = new OutputStreamWriter(controlSocket.getOutputStream(), "ASCII");
         logger.debug("Waiting for daemon to become ready");
         expectStatus("READY");
@@ -80,7 +82,7 @@ public class RemoteDaemon {
         controlOut.flush();
         expectStatus("STOPPED");
     }
-    
+
     private void expectStatus(String expectedStatus) throws IOException {
         String status = controlIn.readLine();
         if (status == null) {

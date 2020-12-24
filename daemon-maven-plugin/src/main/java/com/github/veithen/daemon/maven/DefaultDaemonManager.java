@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,14 +29,15 @@ import org.codehaus.plexus.logging.Logger;
 
 public class DefaultDaemonManager implements DaemonManager, LogEnabled {
     private final List<RemoteDaemon> daemons = new ArrayList<>();
-    
+
     private Logger logger;
-    
+
     public void enableLogging(Logger logger) {
         this.logger = logger;
     }
 
-    public void startDaemon(String description, String[] cmdline, File workDir, int controlPort) throws Exception {
+    public void startDaemon(String description, String[] cmdline, File workDir, int controlPort)
+            throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("Starting process with command line: " + Arrays.asList(cmdline));
         }
@@ -47,7 +48,7 @@ public class DefaultDaemonManager implements DaemonManager, LogEnabled {
         new Thread(new StreamPump(process.getErrorStream(), System.err)).start();
         daemon.startDaemon(logger);
     }
-    
+
     public void stopAll() throws Exception {
         Exception savedException = null;
         for (RemoteDaemon daemon : daemons) {
@@ -74,8 +75,10 @@ public class DefaultDaemonManager implements DaemonManager, LogEnabled {
             }
             logger.info(daemon.getDescription() + " stopped");
         }
-        // TODO: need to clear the collection because the same ServerManager instance may be used by multiple projects in a reactor build;
-        //       note that this means that the plugin is not thread safe (i.e. doesn't support parallel builds in Maven 3)
+        // TODO: need to clear the collection because the same ServerManager instance may be used by
+        // multiple projects in a reactor build;
+        //       note that this means that the plugin is not thread safe (i.e. doesn't support
+        // parallel builds in Maven 3)
         daemons.clear();
         if (savedException != null) {
             throw savedException;
