@@ -19,16 +19,14 @@
  */
 package com.github.veithen.daemon.launcher;
 
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
+
+import io.grpc.Server;
+import io.grpc.netty.NettyServerBuilder;
 
 /**
  * Main class to launch and control a {@link Daemon} implementation. This class is typically
@@ -72,37 +70,15 @@ public final class Launcher {
 
     public static void main(String[] args) {
         try {
-            String daemonClass = args[0];
-            int controlPort = Integer.parseInt(args[1]);
-            String[] daemonArgs = new String[args.length - 2];
-            System.arraycopy(args, 2, daemonArgs, 0, args.length - 2);
-            ServerSocket controlServerSocket = new ServerSocket();
-            controlServerSocket.bind(
-                    new InetSocketAddress(InetAddress.getByName("localhost"), controlPort));
-            Socket controlSocket = controlServerSocket.accept();
-            // We only accept a single connection; therefore we can close the ServerSocket here
-            controlServerSocket.close();
-            ControlConnectionReader controlIn =
-                    new ControlConnectionReader(
-                            new InputStreamReader(controlSocket.getInputStream(), "ASCII"));
-            new Thread(controlIn).start();
-            Writer controlOut = new OutputStreamWriter(controlSocket.getOutputStream(), "ASCII");
-            Daemon daemon = (Daemon) Class.forName(daemonClass).newInstance();
-            daemon.init(new DaemonContextImpl(daemonArgs));
-            daemon.start();
-            controlOut.write("READY\r\n");
-            controlOut.flush();
-            String request = controlIn.awaitMessage();
-            if (request.equals("STOP")) {
-                daemon.stop();
-                daemon.destroy();
-                controlIn.expectClose();
-                controlOut.write("STOPPED\r\n");
-                controlOut.flush();
-                System.exit(0);
-            } else {
-                throw new LauncherException("Unexpected request: " + request);
-            }
+            int controlPort = Integer.parseInt(args[0]);
+            Server server =
+                    NettyServerBuilder.forAddress(
+                                    new InetSocketAddress(
+                                            InetAddress.getByName("localhost"), controlPort))
+                            .addService(new DaemonLauncherImpl())
+                            .build();
+            server.start();
+            server.awaitTermination();
         } catch (Throwable ex) {
             ex.printStackTrace();
             System.exit(1);

@@ -30,7 +30,7 @@ public class StopAllMojo extends AbstractDaemonControlMojo {
     protected void doExecute() throws MojoExecutionException, MojoFailureException {
         try {
             getDaemonManager().stopAll();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             throw new MojoFailureException(
                     "Errors occurred while attempting to stop processes", ex);
         }

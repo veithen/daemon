@@ -17,19 +17,19 @@
  * limitations under the License.
  * #L%
  */
-package com.github.veithen.daemon.maven;
+package com.github.veithen.daemon.launcher;
 
-import java.io.File;
+import com.github.veithen.daemon.grpc.Daemon.DaemonRequest;
+import com.github.veithen.daemon.grpc.Daemon.DaemonResponse;
+import com.github.veithen.daemon.grpc.DaemonLauncherGrpc.DaemonLauncherImplBase;
 
-public interface DaemonManager {
-    void startDaemon(
-            String description,
-            String[] cmdline,
-            File workDir,
-            int controlPort,
-            String daemonClass,
-            String[] daemonArgs)
-            throws Throwable;
+import io.grpc.stub.StreamObserver;
 
-    void stopAll() throws Throwable;
+final class DaemonLauncherImpl extends DaemonLauncherImplBase {
+    @Override
+    public StreamObserver<DaemonRequest> runDaemon(
+            StreamObserver<DaemonResponse> responseObserver) {
+        // TODO: only accept a single request
+        return new DaemonRequestObserver(responseObserver);
+    }
 }

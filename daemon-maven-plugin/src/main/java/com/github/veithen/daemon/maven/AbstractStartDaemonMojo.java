@@ -280,17 +280,17 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
         cmdline.add(StringUtils.join(classpath.iterator(), File.pathSeparator));
         cmdline.addAll(vmArgs);
         cmdline.add("com.github.veithen.daemon.launcher.Launcher");
-        cmdline.add(daemonClass);
         cmdline.add(String.valueOf(controlPort));
-        cmdline.addAll(Arrays.asList(args));
         try {
             getDaemonManager()
                     .startDaemon(
                             description,
                             (String[]) cmdline.toArray(new String[cmdline.size()]),
                             workDir,
-                            controlPort);
-        } catch (Exception ex) {
+                            controlPort,
+                            daemonClass,
+                            args);
+        } catch (Throwable ex) {
             throw new MojoFailureException("Failed to start server", ex);
         }
     }

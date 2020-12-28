@@ -36,21 +36,28 @@ public class DefaultDaemonManager implements DaemonManager, LogEnabled {
         this.logger = logger;
     }
 
-    public void startDaemon(String description, String[] cmdline, File workDir, int controlPort)
-            throws Exception {
+    public void startDaemon(
+            String description,
+            String[] cmdline,
+            File workDir,
+            int controlPort,
+            String daemonClass,
+            String[] daemonArgs)
+            throws Throwable {
         if (logger.isDebugEnabled()) {
             logger.debug("Starting process with command line: " + Arrays.asList(cmdline));
         }
         Process process = Runtime.getRuntime().exec(cmdline, null, workDir);
-        RemoteDaemon daemon = new RemoteDaemon(process, description, controlPort);
+        RemoteDaemon daemon =
+                new RemoteDaemon(process, description, controlPort, daemonClass, daemonArgs);
         daemons.add(daemon);
         new Thread(new StreamPump(process.getInputStream(), System.out)).start();
         new Thread(new StreamPump(process.getErrorStream(), System.err)).start();
         daemon.startDaemon(logger);
     }
 
-    public void stopAll() throws Exception {
-        Exception savedException = null;
+    public void stopAll() throws Throwable {
+        Throwable savedException = null;
         for (RemoteDaemon daemon : daemons) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Stopping " + daemon.getDescription());
@@ -59,7 +66,7 @@ public class DefaultDaemonManager implements DaemonManager, LogEnabled {
             try {
                 daemon.stopDaemon(logger);
                 success = true;
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
                 if (savedException == null) {
                     savedException = ex;
                 }

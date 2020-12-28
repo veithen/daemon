@@ -19,27 +19,42 @@
  */
 package com.github.veithen.daemon.maven;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.util.Arrays;
 
 import org.codehaus.plexus.logging.Logger;
+
+import com.github.veithen.daemon.grpc.Daemon.DaemonRequest;
+import com.github.veithen.daemon.grpc.Daemon.DaemonResponse.ResponseCase;
+import com.github.veithen.daemon.grpc.Daemon.Start;
+import com.github.veithen.daemon.grpc.Daemon.Stop;
+import com.github.veithen.daemon.grpc.DaemonLauncherGrpc;
+import com.github.veithen.daemon.grpc.DaemonLauncherGrpc.DaemonLauncherStub;
+
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
 
 public class RemoteDaemon {
     private final Process process;
     private final String description;
     private final int controlPort;
-    private BufferedReader controlIn;
-    private Writer controlOut;
+    private final String daemonClass;
+    private final String[] daemonArgs;
+    private ManagedChannel channel;
+    private StreamObserver<DaemonRequest> requestObserver;
+    private DaemonResponseObserver responseObserver;
 
-    public RemoteDaemon(Process process, String description, int controlPort) {
+    public RemoteDaemon(
+            Process process,
+            String description,
+            int controlPort,
+            String daemonClass,
+            String[] daemonArgs) {
         this.process = process;
         this.description = description;
         this.controlPort = controlPort;
+        this.daemonClass = daemonClass;
+        this.daemonArgs = daemonArgs;
     }
 
     public Process getProcess() {
@@ -50,45 +65,30 @@ public class RemoteDaemon {
         return description;
     }
 
-    public void startDaemon(Logger logger) throws Exception {
+    public void startDaemon(Logger logger) throws Throwable {
         logger.debug("Attempting to establish control connection on port " + controlPort);
-        Socket controlSocket;
-        while (true) {
-            try {
-                controlSocket = new Socket(InetAddress.getByName("localhost"), controlPort);
-                break;
-            } catch (IOException ex) {
-                try {
-                    int exitValue = process.exitValue();
-                    throw new IllegalStateException(
-                            "Process terminated prematurely with exit code " + exitValue);
-                } catch (IllegalThreadStateException ex2) {
-                    // Process is still running; continue
-                }
-                Thread.sleep(100);
-            }
-        }
-        logger.debug("Control connection established");
-        controlIn =
-                new BufferedReader(new InputStreamReader(controlSocket.getInputStream(), "ASCII"));
-        controlOut = new OutputStreamWriter(controlSocket.getOutputStream(), "ASCII");
+        channel = ManagedChannelBuilder.forAddress("localhost", controlPort).usePlaintext().build();
+        DaemonLauncherStub stub = DaemonLauncherGrpc.newStub(channel).withWaitForReady();
+        responseObserver = new DaemonResponseObserver();
+        requestObserver = stub.runDaemon(responseObserver);
+        requestObserver.onNext(
+                DaemonRequest.newBuilder()
+                        .setStart(
+                                Start.newBuilder()
+                                        .setDaemonClass(daemonClass)
+                                        .addAllDaemonArg(Arrays.asList(daemonArgs))
+                                        .build())
+                        .build());
         logger.debug("Waiting for daemon to become ready");
-        expectStatus("READY");
+        responseObserver.read(ResponseCase.READY);
         logger.debug("Daemon is ready");
     }
 
-    public void stopDaemon(Logger logger) throws Exception {
-        controlOut.write("STOP\r\n");
-        controlOut.flush();
-        expectStatus("STOPPED");
-    }
-
-    private void expectStatus(String expectedStatus) throws IOException {
-        String status = controlIn.readLine();
-        if (status == null) {
-            throw new IllegalStateException("Control connection unexpectedly closed");
-        } else if (!status.equals(expectedStatus)) {
-            throw new IllegalStateException("Unexpected status: " + status);
-        }
+    public void stopDaemon(Logger logger) throws Throwable {
+        requestObserver.onNext(
+                DaemonRequest.newBuilder().setStop(Stop.newBuilder().build()).build());
+        responseObserver.read(ResponseCase.STOPPED);
+        requestObserver.onCompleted();
+        channel.shutdown();
     }
 }

@@ -3,7 +3,7 @@
   #%L
   Daemon Tools
   %%
-  Copyright (C) 2012 - 2018 Andreas Veithen
+  Copyright (C) 2012 - 2020 Andreas Veithen
   %%
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,12 +28,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>daemon-launcher</artifactId>
-
-    <name>Daemon Launcher</name>
-    <description>
-        Used by daemon-maven-plugin to launch a Commons Daemon implementation.
-    </description>
+    <artifactId>daemon-grpc</artifactId>
 
     <scm>
         <url>https://github.com/veithen/daemon/tree/master</url>
@@ -44,22 +39,45 @@
 
     <dependencies>
         <dependency>
-            <groupId>commons-daemon</groupId>
-            <artifactId>commons-daemon</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>daemon-grpc</artifactId>
-            <version>${project.version}</version>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
+            <artifactId>grpc-stub</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.github.os72</groupId>
+                <artifactId>protoc-jar-maven-plugin</artifactId>
+                <version>3.11.4</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <protocArtifact>com.google.protobuf:protoc:${protobuf.version}</protocArtifact>
+                            <inputDirectories>
+                                <include>src/main/protobuf</include>
+                            </inputDirectories>
+                            <outputTargets>
+                                <outputTarget>
+                                    <type>java</type>
+                                </outputTarget>
+                                <outputTarget>
+                                    <type>grpc-java</type>
+                                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}</pluginArtifact>
+                                </outputTarget>
+                            </outputTargets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
                 <configuration>
