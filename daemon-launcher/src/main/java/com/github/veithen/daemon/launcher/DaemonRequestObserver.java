@@ -27,13 +27,14 @@ import com.github.veithen.daemon.grpc.DaemonResponse;
 import com.github.veithen.daemon.grpc.Initialized;
 import com.github.veithen.daemon.grpc.Ready;
 import com.github.veithen.daemon.grpc.Stopped;
+import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.Message;
 
 import io.grpc.stub.StreamObserver;
 
 final class DaemonRequestObserver implements StreamObserver<DaemonRequest> {
     private final StreamObserver<DaemonResponse> responseObserver;
-    private Class<? extends Daemon> daemonClass;
-    private Daemon daemon;
+    private Daemon<?> daemon;
 
     DaemonRequestObserver(StreamObserver<DaemonResponse> responseObserver) {
         this.responseObserver = responseObserver;
@@ -45,18 +46,28 @@ final class DaemonRequestObserver implements StreamObserver<DaemonRequest> {
             switch (request.getRequestCase()) {
                 case INITIALIZE:
                     {
-                        daemonClass =
-                                Class.forName(request.getInitialize().getDaemonClass())
-                                        .asSubclass(Daemon.class);
+                        daemon =
+                                (Daemon<?>)
+                                        Class.forName(request.getInitialize().getDaemonClass())
+                                                .newInstance();
+                        Class<? extends Message> configurationType = daemon.getConfigurationType();
+                        Descriptor descriptor =
+                                (Descriptor)
+                                        configurationType.getMethod("getDescriptor").invoke(null);
                         responseObserver.onNext(
                                 DaemonResponse.newBuilder()
-                                        .setInitialized(Initialized.newBuilder().build())
+                                        .setInitialized(
+                                                Initialized.newBuilder()
+                                                        .setConfigurationType(
+                                                                descriptor.getFullName())
+                                                        .addFileDescriptor(
+                                                                descriptor.getFile().toProto())
+                                                        .build())
                                         .build());
                         break;
                     }
                 case START:
                     {
-                        daemon = daemonClass.newInstance();
                         List<String> daemonArgs = request.getStart().getDaemonArgList();
                         daemon.init(
                                 new DaemonContextImpl(

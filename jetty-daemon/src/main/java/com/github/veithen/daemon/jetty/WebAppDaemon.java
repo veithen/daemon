@@ -36,8 +36,13 @@ import com.github.veithen.daemon.Daemon;
 import com.github.veithen.daemon.DaemonContext;
 
 /** @author Andreas Veithen */
-public class WebAppDaemon implements Daemon {
+public class WebAppDaemon implements Daemon<Configuration> {
     private Server server;
+
+    @Override
+    public Class<Configuration> getConfigurationType() {
+        return Configuration.class;
+    }
 
     @Override
     public void init(DaemonContext daemonContext) throws Exception {

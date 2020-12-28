@@ -60,6 +60,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
+                            <includeMavenTypes>transitive</includeMavenTypes>
                             <outputTargets>
                                 <outputTarget>
                                     <type>java</type>

@@ -3,6 +3,8 @@ syntax = "proto3";
 option java_package = "com.github.veithen.daemon.grpc";
 option java_multiple_files = true;
 
+import "google/protobuf/descriptor.proto";
+
 message Initialize {
     string daemon_class = 1;
 }
@@ -21,7 +23,10 @@ message DaemonRequest {
     }
 }
 
-message Initialized {}
+message Initialized {
+    string configuration_type = 1;
+    repeated google.protobuf.FileDescriptorProto file_descriptor = 2;
+}
 
 message Ready {}
 

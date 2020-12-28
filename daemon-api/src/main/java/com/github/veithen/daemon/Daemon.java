@@ -19,7 +19,11 @@
  */
 package com.github.veithen.daemon;
 
-public interface Daemon {
+import com.google.protobuf.Message;
+
+public interface Daemon<T extends Message> {
+    Class<T> getConfigurationType();
+
     void init(DaemonContext context) throws Exception;
 
     void start() throws Exception;
