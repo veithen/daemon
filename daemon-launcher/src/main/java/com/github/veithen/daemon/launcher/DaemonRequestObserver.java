@@ -24,6 +24,7 @@ import java.util.List;
 import com.github.veithen.daemon.Daemon;
 import com.github.veithen.daemon.grpc.DaemonRequest;
 import com.github.veithen.daemon.grpc.DaemonResponse;
+import com.github.veithen.daemon.grpc.Initialized;
 import com.github.veithen.daemon.grpc.Ready;
 import com.github.veithen.daemon.grpc.Stopped;
 
@@ -31,6 +32,7 @@ import io.grpc.stub.StreamObserver;
 
 final class DaemonRequestObserver implements StreamObserver<DaemonRequest> {
     private final StreamObserver<DaemonResponse> responseObserver;
+    private Class<? extends Daemon> daemonClass;
     private Daemon daemon;
 
     DaemonRequestObserver(StreamObserver<DaemonResponse> responseObserver) {
@@ -39,14 +41,22 @@ final class DaemonRequestObserver implements StreamObserver<DaemonRequest> {
 
     @Override
     public void onNext(DaemonRequest request) {
-        switch (request.getRequestCase()) {
-            case START:
-                {
-                    try {
-                        daemon =
-                                (Daemon)
-                                        Class.forName(request.getStart().getDaemonClass())
-                                                .newInstance();
+        try {
+            switch (request.getRequestCase()) {
+                case INITIALIZE:
+                    {
+                        daemonClass =
+                                Class.forName(request.getInitialize().getDaemonClass())
+                                        .asSubclass(Daemon.class);
+                        responseObserver.onNext(
+                                DaemonResponse.newBuilder()
+                                        .setInitialized(Initialized.newBuilder().build())
+                                        .build());
+                        break;
+                    }
+                case START:
+                    {
+                        daemon = daemonClass.newInstance();
                         List<String> daemonArgs = request.getStart().getDaemonArgList();
                         daemon.init(
                                 new DaemonContextImpl(
@@ -56,24 +66,21 @@ final class DaemonRequestObserver implements StreamObserver<DaemonRequest> {
                                 DaemonResponse.newBuilder()
                                         .setReady(Ready.newBuilder().build())
                                         .build());
-                    } catch (Throwable t) {
-                        responseObserver.onError(t);
+                        break;
                     }
-                    break;
-                }
-            case STOP:
-                {
-                    try {
+                case STOP:
+                    {
                         daemon.stop();
                         daemon.destroy();
                         responseObserver.onNext(
                                 DaemonResponse.newBuilder()
                                         .setStopped(Stopped.newBuilder().build())
                                         .build());
-                    } catch (Throwable t) {
-                        responseObserver.onError(t);
+                        break;
                     }
-                }
+            }
+        } catch (Throwable t) {
+            responseObserver.onError(t);
         }
     }
 

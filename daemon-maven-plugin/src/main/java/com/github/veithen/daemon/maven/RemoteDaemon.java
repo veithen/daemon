@@ -24,6 +24,7 @@ import java.util.Arrays;
 import org.codehaus.plexus.logging.Logger;
 
 import com.github.veithen.daemon.grpc.DaemonRequest;
+import com.github.veithen.daemon.grpc.Initialize;
 import com.github.veithen.daemon.grpc.DaemonResponse.ResponseCase;
 import com.github.veithen.daemon.grpc.Start;
 import com.github.veithen.daemon.grpc.Stop;
@@ -73,9 +74,14 @@ public class RemoteDaemon {
         requestObserver = stub.runDaemon(responseObserver);
         requestObserver.onNext(
                 DaemonRequest.newBuilder()
+                        .setInitialize(Initialize.newBuilder().setDaemonClass(daemonClass).build())
+                        .build());
+        logger.debug("Awaiting initialization");
+        responseObserver.read(ResponseCase.INITIALIZED);
+        requestObserver.onNext(
+                DaemonRequest.newBuilder()
                         .setStart(
                                 Start.newBuilder()
-                                        .setDaemonClass(daemonClass)
                                         .addAllDaemonArg(Arrays.asList(daemonArgs))
                                         .build())
                         .build());

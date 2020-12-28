@@ -3,19 +3,25 @@ syntax = "proto3";
 option java_package = "com.github.veithen.daemon.grpc";
 option java_multiple_files = true;
 
-message Start {
+message Initialize {
     string daemon_class = 1;
-    repeated string daemon_arg = 2;
+}
+
+message Start {
+    repeated string daemon_arg = 1;
 }
 
 message Stop {}
 
 message DaemonRequest {
     oneof request {
-        Start start = 1;
-        Stop stop = 2;
+        Initialize initialize = 1;
+        Start start = 2;
+        Stop stop = 3;
     }
 }
+
+message Initialized {}
 
 message Ready {}
 
@@ -23,8 +29,9 @@ message Stopped {}
 
 message DaemonResponse {
     oneof response {
-        Ready ready = 1;
-        Stopped stopped = 2;
+        Initialized initialized = 1;
+        Ready ready = 2;
+        Stopped stopped = 3;
     }
 }
 
