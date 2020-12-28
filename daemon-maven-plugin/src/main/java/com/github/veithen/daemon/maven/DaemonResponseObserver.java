@@ -19,8 +19,8 @@
  */
 package com.github.veithen.daemon.maven;
 
-import com.github.veithen.daemon.grpc.Daemon.DaemonResponse;
-import com.github.veithen.daemon.grpc.Daemon.DaemonResponse.ResponseCase;
+import com.github.veithen.daemon.grpc.DaemonResponse;
+import com.github.veithen.daemon.grpc.DaemonResponse.ResponseCase;
 
 import io.grpc.stub.StreamObserver;
 

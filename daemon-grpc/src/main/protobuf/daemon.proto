@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 option java_package = "com.github.veithen.daemon.grpc";
+option java_multiple_files = true;
 
 message Start {
     string daemon_class = 1;

@@ -19,8 +19,8 @@
  */
 package com.github.veithen.daemon.launcher;
 
-import com.github.veithen.daemon.grpc.Daemon.DaemonRequest;
-import com.github.veithen.daemon.grpc.Daemon.DaemonResponse;
+import com.github.veithen.daemon.grpc.DaemonRequest;
+import com.github.veithen.daemon.grpc.DaemonResponse;
 import com.github.veithen.daemon.grpc.DaemonLauncherGrpc.DaemonLauncherImplBase;
 
 import io.grpc.stub.StreamObserver;

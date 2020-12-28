@@ -23,10 +23,10 @@ import java.util.Arrays;
 
 import org.codehaus.plexus.logging.Logger;
 
-import com.github.veithen.daemon.grpc.Daemon.DaemonRequest;
-import com.github.veithen.daemon.grpc.Daemon.DaemonResponse.ResponseCase;
-import com.github.veithen.daemon.grpc.Daemon.Start;
-import com.github.veithen.daemon.grpc.Daemon.Stop;
+import com.github.veithen.daemon.grpc.DaemonRequest;
+import com.github.veithen.daemon.grpc.DaemonResponse.ResponseCase;
+import com.github.veithen.daemon.grpc.Start;
+import com.github.veithen.daemon.grpc.Stop;
 import com.github.veithen.daemon.grpc.DaemonLauncherGrpc;
 import com.github.veithen.daemon.grpc.DaemonLauncherGrpc.DaemonLauncherStub;
 

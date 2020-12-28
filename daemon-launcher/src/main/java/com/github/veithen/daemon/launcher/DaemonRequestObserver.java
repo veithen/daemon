@@ -22,10 +22,10 @@ package com.github.veithen.daemon.launcher;
 import java.util.List;
 
 import com.github.veithen.daemon.Daemon;
-import com.github.veithen.daemon.grpc.Daemon.DaemonRequest;
-import com.github.veithen.daemon.grpc.Daemon.DaemonResponse;
-import com.github.veithen.daemon.grpc.Daemon.Ready;
-import com.github.veithen.daemon.grpc.Daemon.Stopped;
+import com.github.veithen.daemon.grpc.DaemonRequest;
+import com.github.veithen.daemon.grpc.DaemonResponse;
+import com.github.veithen.daemon.grpc.Ready;
+import com.github.veithen.daemon.grpc.Stopped;
 
 import io.grpc.stub.StreamObserver;
 
