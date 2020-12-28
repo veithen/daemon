@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option java_package = "com.github.veithen.daemon.maven";
+option java_multiple_files = true;
+
+message SomeMessage {
+    string value = 1;
+}
+
+message Configuration {
+    uint32 some_int = 1;
+    string some_string = 2;
+    repeated string some_repeated_strings = 3;
+    SomeMessage some_message = 4;
+}
