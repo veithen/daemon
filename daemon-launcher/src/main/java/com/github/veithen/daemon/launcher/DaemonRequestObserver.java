@@ -21,8 +21,7 @@ package com.github.veithen.daemon.launcher;
 
 import java.util.List;
 
-import org.apache.commons.daemon.Daemon;
-
+import com.github.veithen.daemon.Daemon;
 import com.github.veithen.daemon.grpc.Daemon.DaemonRequest;
 import com.github.veithen.daemon.grpc.Daemon.DaemonResponse;
 import com.github.veithen.daemon.grpc.Daemon.Ready;

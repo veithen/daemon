@@ -2,7 +2,7 @@
  * #%L
  * Daemon Tools
  * %%
- * Copyright (C) 2012 - 2018 Andreas Veithen
+ * Copyright (C) 2012 - 2020 Andreas Veithen
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,14 @@
  * limitations under the License.
  * #L%
  */
-package com.github.veithen.daemon.launcher;
+package com.github.veithen.daemon;
 
-import com.github.veithen.daemon.DaemonContext;
+public interface Daemon {
+    void init(DaemonContext context) throws Exception;
 
-final class DaemonContextImpl implements DaemonContext {
-    private final String[] args;
+    void start() throws Exception;
 
-    public DaemonContextImpl(String[] args) {
-        this.args = args;
-    }
+    void stop() throws Exception;
 
-    @Override
-    public String[] getArguments() {
-        return args;
-    }
+    void destroy();
 }

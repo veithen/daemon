@@ -22,9 +22,6 @@ package com.github.veithen.daemon.launcher;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import org.apache.commons.daemon.Daemon;
-import org.apache.commons.daemon.DaemonContext;
-
 import io.grpc.Server;
 import io.grpc.netty.NettyServerBuilder;
 

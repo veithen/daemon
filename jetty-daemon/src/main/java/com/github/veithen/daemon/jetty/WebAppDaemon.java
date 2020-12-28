@@ -26,20 +26,21 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.daemon.Daemon;
-import org.apache.commons.daemon.DaemonContext;
-import org.apache.commons.daemon.DaemonInitException;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import com.github.veithen.daemon.Daemon;
+import com.github.veithen.daemon.DaemonContext;
+
 /** @author Andreas Veithen */
 public class WebAppDaemon implements Daemon {
     private Server server;
 
-    public void init(DaemonContext daemonContext) throws DaemonInitException, Exception {
+    @Override
+    public void init(DaemonContext daemonContext) throws Exception {
         Options options = new Options();
 
         {
@@ -83,14 +84,17 @@ public class WebAppDaemon implements Daemon {
         }
     }
 
+    @Override
     public void start() throws Exception {
         server.start();
     }
 
+    @Override
     public void stop() throws Exception {
         server.stop();
     }
 
+    @Override
     public void destroy() {
         server = null;
     }
