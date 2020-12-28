@@ -22,6 +22,9 @@ package com.github.veithen.daemon.launcher;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import com.github.veithen.daemon.Daemon;
+import com.github.veithen.daemon.DaemonContext;
+
 import io.grpc.Server;
 import io.grpc.netty.NettyServerBuilder;
 
