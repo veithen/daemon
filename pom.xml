@@ -122,6 +122,19 @@
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>3.2.0</version>
                 </plugin>
+                <plugin>
+                    <groupId>com.github.os72</groupId>
+                    <artifactId>protoc-jar-maven-plugin</artifactId>
+                    <version>3.11.4</version>
+                    <configuration>
+                        <protocArtifact>com.google.protobuf:protoc:${protobuf.version}</protocArtifact>
+                        <inputDirectories>
+                            <include>src/main/protobuf</include>
+                        </inputDirectories>
+                        <type>java</type>
+                        <outputDirectorySuffix>protobuf</outputDirectorySuffix>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>

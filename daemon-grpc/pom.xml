@@ -53,7 +53,6 @@
             <plugin>
                 <groupId>com.github.os72</groupId>
                 <artifactId>protoc-jar-maven-plugin</artifactId>
-                <version>3.11.4</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -61,17 +60,15 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <protocArtifact>com.google.protobuf:protoc:${protobuf.version}</protocArtifact>
-                            <inputDirectories>
-                                <include>src/main/protobuf</include>
-                            </inputDirectories>
                             <outputTargets>
                                 <outputTarget>
                                     <type>java</type>
+                                    <outputDirectorySuffix>protobuf</outputDirectorySuffix>
                                 </outputTarget>
                                 <outputTarget>
                                     <type>grpc-java</type>
                                     <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}</pluginArtifact>
+                                    <outputDirectorySuffix>grpc</outputDirectorySuffix>
                                 </outputTarget>
                             </outputTargets>
                         </configuration>
