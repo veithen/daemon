@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_package = "com.github.veithen.daemon.grpc";
+option java_package = "com.github.veithen.daemon.launcher.proto";
 option java_multiple_files = true;
 
 import "google/protobuf/descriptor.proto";
@@ -38,8 +38,4 @@ message DaemonResponse {
         Ready ready = 2;
         Stopped stopped = 3;
     }
-}
-
-service DaemonLauncher {
-    rpc RunDaemon(stream DaemonRequest) returns (stream DaemonResponse);
 }

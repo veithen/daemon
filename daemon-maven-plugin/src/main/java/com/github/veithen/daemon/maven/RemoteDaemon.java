@@ -19,21 +19,21 @@
  */
 package com.github.veithen.daemon.maven;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.Arrays;
 
 import org.codehaus.plexus.logging.Logger;
 
-import com.github.veithen.daemon.grpc.DaemonRequest;
-import com.github.veithen.daemon.grpc.Initialize;
-import com.github.veithen.daemon.grpc.DaemonResponse.ResponseCase;
-import com.github.veithen.daemon.grpc.Start;
-import com.github.veithen.daemon.grpc.Stop;
-import com.github.veithen.daemon.grpc.DaemonLauncherGrpc;
-import com.github.veithen.daemon.grpc.DaemonLauncherGrpc.DaemonLauncherStub;
-
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.stub.StreamObserver;
+import com.github.veithen.daemon.launcher.proto.DaemonRequest;
+import com.github.veithen.daemon.launcher.proto.DaemonResponse;
+import com.github.veithen.daemon.launcher.proto.DaemonResponse.ResponseCase;
+import com.github.veithen.daemon.launcher.proto.Initialize;
+import com.github.veithen.daemon.launcher.proto.MessageReader;
+import com.github.veithen.daemon.launcher.proto.MessageWriter;
+import com.github.veithen.daemon.launcher.proto.Start;
+import com.github.veithen.daemon.launcher.proto.Stop;
 
 public class RemoteDaemon {
     private final Process process;
@@ -41,9 +41,9 @@ public class RemoteDaemon {
     private final int controlPort;
     private final String daemonClass;
     private final String[] daemonArgs;
-    private ManagedChannel channel;
-    private StreamObserver<DaemonRequest> requestObserver;
-    private DaemonResponseObserver responseObserver;
+    private Socket controlSocket;
+    private MessageWriter<DaemonRequest> controlWriter;
+    private MessageReader<DaemonResponse, ResponseCase> controlReader;
 
     public RemoteDaemon(
             Process process,
@@ -68,17 +68,36 @@ public class RemoteDaemon {
 
     public void startDaemon(Logger logger) throws Throwable {
         logger.debug("Attempting to establish control connection on port " + controlPort);
-        channel = ManagedChannelBuilder.forAddress("localhost", controlPort).usePlaintext().build();
-        DaemonLauncherStub stub = DaemonLauncherGrpc.newStub(channel).withWaitForReady();
-        responseObserver = new DaemonResponseObserver();
-        requestObserver = stub.runDaemon(responseObserver);
-        requestObserver.onNext(
+        while (true) {
+            try {
+                controlSocket = new Socket(InetAddress.getByName("localhost"), controlPort);
+                break;
+            } catch (IOException ex) {
+                try {
+                    int exitValue = process.exitValue();
+                    throw new IllegalStateException(
+                            "Process terminated prematurely with exit code " + exitValue);
+                } catch (IllegalThreadStateException ex2) {
+                    // Process is still running; continue
+                }
+                Thread.sleep(100);
+            }
+        }
+        logger.debug("Control connection established");
+        controlWriter = new MessageWriter<DaemonRequest>(controlSocket.getOutputStream());
+        controlReader =
+                new MessageReader<>(
+                        controlSocket.getInputStream(),
+                        DaemonResponse.parser(),
+                        DaemonResponse::getResponseCase);
+
+        controlWriter.write(
                 DaemonRequest.newBuilder()
                         .setInitialize(Initialize.newBuilder().setDaemonClass(daemonClass).build())
                         .build());
         logger.debug("Awaiting initialization");
-        responseObserver.read(ResponseCase.INITIALIZED);
-        requestObserver.onNext(
+        controlReader.read(ResponseCase.INITIALIZED);
+        controlWriter.write(
                 DaemonRequest.newBuilder()
                         .setStart(
                                 Start.newBuilder()
@@ -86,15 +105,13 @@ public class RemoteDaemon {
                                         .build())
                         .build());
         logger.debug("Waiting for daemon to become ready");
-        responseObserver.read(ResponseCase.READY);
+        controlReader.read(ResponseCase.READY);
         logger.debug("Daemon is ready");
     }
 
     public void stopDaemon(Logger logger) throws Throwable {
-        requestObserver.onNext(
-                DaemonRequest.newBuilder().setStop(Stop.newBuilder().build()).build());
-        responseObserver.read(ResponseCase.STOPPED);
-        requestObserver.onCompleted();
-        channel.shutdown();
+        controlWriter.write(DaemonRequest.newBuilder().setStop(Stop.getDefaultInstance()).build());
+        controlReader.read(ResponseCase.STOPPED);
+        controlSocket.close();
     }
 }

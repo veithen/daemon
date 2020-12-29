@@ -21,12 +21,22 @@ package com.github.veithen.daemon.launcher;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.List;
 
 import com.github.veithen.daemon.Daemon;
 import com.github.veithen.daemon.DaemonContext;
-
-import io.grpc.Server;
-import io.grpc.netty.NettyServerBuilder;
+import com.github.veithen.daemon.launcher.proto.DaemonRequest;
+import com.github.veithen.daemon.launcher.proto.DaemonRequest.RequestCase;
+import com.github.veithen.daemon.launcher.proto.DaemonResponse;
+import com.github.veithen.daemon.launcher.proto.Initialized;
+import com.github.veithen.daemon.launcher.proto.MessageReader;
+import com.github.veithen.daemon.launcher.proto.MessageWriter;
+import com.github.veithen.daemon.launcher.proto.Ready;
+import com.github.veithen.daemon.launcher.proto.Stopped;
+import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.Message;
 
 /**
  * Main class to launch and control a {@link Daemon} implementation. This class is typically
@@ -71,14 +81,50 @@ public final class Launcher {
     public static void main(String[] args) {
         try {
             int controlPort = Integer.parseInt(args[0]);
-            Server server =
-                    NettyServerBuilder.forAddress(
-                                    new InetSocketAddress(
-                                            InetAddress.getByName("localhost"), controlPort))
-                            .addService(new DaemonLauncherImpl())
-                            .build();
-            server.start();
-            server.awaitTermination();
+            ServerSocket controlServerSocket = new ServerSocket();
+            controlServerSocket.bind(
+                    new InetSocketAddress(InetAddress.getByName("localhost"), controlPort));
+            Socket controlSocket = controlServerSocket.accept();
+            // We only accept a single connection; therefore we can close the ServerSocket here
+            controlServerSocket.close();
+            MessageReader<DaemonRequest, RequestCase> reader =
+                    new MessageReader<>(
+                            controlSocket.getInputStream(),
+                            DaemonRequest.parser(),
+                            DaemonRequest::getRequestCase);
+            MessageWriter<DaemonResponse> writer =
+                    new MessageWriter<>(controlSocket.getOutputStream());
+
+            Daemon<?> daemon =
+                    (Daemon<?>)
+                            Class.forName(
+                                            reader.read(RequestCase.INITIALIZE)
+                                                    .getInitialize()
+                                                    .getDaemonClass())
+                                    .newInstance();
+            Class<? extends Message> configurationType = daemon.getConfigurationType();
+            Descriptor descriptor =
+                    (Descriptor) configurationType.getMethod("getDescriptor").invoke(null);
+            writer.write(
+                    DaemonResponse.newBuilder()
+                            .setInitialized(
+                                    Initialized.newBuilder()
+                                            .setConfigurationType(descriptor.getFullName())
+                                            .addFileDescriptor(descriptor.getFile().toProto())
+                                            .build())
+                            .build());
+
+            List<String> daemonArgs = reader.read(RequestCase.START).getStart().getDaemonArgList();
+            daemon.init(new DaemonContextImpl(daemonArgs.toArray(new String[daemonArgs.size()])));
+            daemon.start();
+            writer.write(DaemonResponse.newBuilder().setReady(Ready.getDefaultInstance()).build());
+
+            reader.read(RequestCase.STOP);
+            daemon.stop();
+            daemon.destroy();
+            writer.write(
+                    DaemonResponse.newBuilder().setStopped(Stopped.getDefaultInstance()).build());
+            System.exit(0);
         } catch (Throwable ex) {
             ex.printStackTrace();
             System.exit(1);

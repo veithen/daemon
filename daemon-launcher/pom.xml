@@ -53,10 +53,6 @@
             <artifactId>daemon-grpc</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
