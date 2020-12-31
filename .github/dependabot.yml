@@ -11,6 +11,10 @@ updates:
     directory: "/daemon-maven-plugin/src/it/jetty"
     schedule:
       interval: "daily"
+    ignore:
+      # Jetty 9 supports Servlets 3.1.
+      - dependency-name: "javax.servlet:javax.servlet-api"
+        versions: "> 3.1.0"
   - package-ecosystem: "maven"
     directory: "//daemon-maven-plugin/src/it/jetty-request-log"
     schedule:
