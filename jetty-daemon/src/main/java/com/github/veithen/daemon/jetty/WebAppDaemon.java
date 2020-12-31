@@ -73,7 +73,15 @@ public class WebAppDaemon implements Daemon<Configuration> {
 
         server = new Server(Integer.parseInt(cmdLine.getOptionValue("p")));
 
-        WebAppContext context = new WebAppContext(server, (Resource) null, "/");
+        WebAppContext context =
+                new WebAppContext(server, (Resource) null, "/") {
+                    @Override
+                    public boolean isServerClass(Class<?> clazz) {
+                        // This allows the webapp to load servlets provided by Jetty, e.g.
+                        // ProxyServlet.
+                        return false;
+                    }
+                };
         server.setHandler(context);
         String[] resourceDirs = cmdLine.getOptionValue("r").split(File.pathSeparator);
         Resource[] resources = new Resource[resourceDirs.length];
