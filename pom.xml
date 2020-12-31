@@ -44,7 +44,7 @@
 
     <modules>
         <module>daemon-api</module>
-        <module>daemon-grpc</module>
+        <module>daemon-launcher-protocol</module>
         <module>daemon-launcher</module>
         <module>jetty-daemon</module>
         <module>daemon-maven-plugin</module>

@@ -28,7 +28,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>daemon-grpc</artifactId>
+    <artifactId>daemon-launcher-protocol</artifactId>
 
     <scm>
         <url>https://github.com/veithen/daemon/tree/master</url>
