@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -53,16 +53,25 @@ public class JettyITCase {
 
     @Test
     public void test() throws Exception {
-        HttpURLConnection c = (HttpURLConnection)new URL(
-                String.format("http://localhost:%s/somefile.txt", System.getProperty("jetty.httpPort"))).openConnection();
+        HttpURLConnection c =
+                (HttpURLConnection)
+                        new URL(
+                                        String.format(
+                                                "http://localhost:%s/somefile.txt",
+                                                System.getProperty("jetty.httpPort")))
+                                .openConnection();
         assertThat(c.getResponseCode()).isEqualTo(200);
         c.disconnect();
-    
-        withRetry(() -> {
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream("target/request.log"), "utf-8"))) {
-                assertThat(in.readLine()).contains("GET /somefile.txt");
-                assertThat(in.readLine()).isNull();
-            }
-        });
+
+        withRetry(
+                () -> {
+                    try (BufferedReader in =
+                            new BufferedReader(
+                                    new InputStreamReader(
+                                            new FileInputStream("target/request.log"), "utf-8"))) {
+                        assertThat(in.readLine()).contains("GET /somefile.txt");
+                        assertThat(in.readLine()).isNull();
+                    }
+                });
     }
 }
