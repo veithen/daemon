@@ -51,8 +51,8 @@ public class DefaultDaemonManager implements DaemonManager, LogEnabled {
         RemoteDaemon daemon =
                 new RemoteDaemon(process, description, controlPort, daemonClass, daemonArgs);
         daemons.add(daemon);
-        new Thread(new StreamPump(process.getInputStream(), System.out)).start();
-        new Thread(new StreamPump(process.getErrorStream(), System.err)).start();
+        new Thread(new StreamPump(process.getInputStream(), logger, "[STDOUT] ")).start();
+        new Thread(new StreamPump(process.getErrorStream(), logger, "[STDERR] ")).start();
         daemon.startDaemon(logger);
     }
 

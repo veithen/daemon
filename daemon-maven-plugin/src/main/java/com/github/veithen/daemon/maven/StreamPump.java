@@ -19,25 +19,29 @@
  */
 package com.github.veithen.daemon.maven;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InputStreamReader;
+
+import org.codehaus.plexus.logging.Logger;
 
 public class StreamPump implements Runnable {
-    private final InputStream in;
-    private final OutputStream out;
+    private final BufferedReader in;
+    private final Logger logger;
+    private final String prefix;
 
-    public StreamPump(InputStream in, OutputStream out) {
-        this.in = in;
-        this.out = out;
+    public StreamPump(InputStream in, Logger logger, String prefix) {
+        this.in = new BufferedReader(new InputStreamReader(in));
+        this.logger = logger;
+        this.prefix = prefix;
     }
 
     public void run() {
         try {
-            byte[] buffer = new byte[4096];
-            int c;
-            while ((c = in.read(buffer)) != -1) {
-                out.write(buffer, 0, c);
+            String line;
+            while ((line = in.readLine()) != null) {
+                logger.info(prefix + line);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
