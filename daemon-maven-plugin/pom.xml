@@ -76,11 +76,6 @@
             <version>0.1.0</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-toolchain</artifactId>
-            <version>2.2.1</version>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>daemon-launcher-protocol</artifactId>
             <version>${project.version}</version>
