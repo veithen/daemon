@@ -296,7 +296,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
     }
 
     private static void processVMArgs(List<String> vmArgs, String args) {
-        vmArgs.addAll(Arrays.asList(args.split(" ")));
+        vmArgs.addAll(Arrays.asList(args.trim().split(" +")));
     }
 
     protected final void doExecute() throws MojoExecutionException, MojoFailureException {
