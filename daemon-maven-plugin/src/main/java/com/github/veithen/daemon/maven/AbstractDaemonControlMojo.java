@@ -25,14 +25,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import com.github.veithen.ulog.PlexusLoggerInjector;
-
 public abstract class AbstractDaemonControlMojo extends AbstractMojo {
-    @Component
-    // This is necessary to set up logging such that all messages logged by the Axis
-    // libraries through commons logging are redirected to Plexus logs.
-    PlexusLoggerInjector loggerInjector;
-
     @Component private DaemonManager daemonManager;
 
     /**

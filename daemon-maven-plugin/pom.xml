@@ -71,11 +71,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.veithen.ulog</groupId>
-            <artifactId>ulog</artifactId>
-            <version>0.1.0</version>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>daemon-launcher-protocol</artifactId>
             <version>${project.version}</version>
