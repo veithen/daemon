@@ -25,18 +25,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.logging.LogEnabled;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 
 @Component(role = DaemonManager.class, hint = "default")
-public class DefaultDaemonManager implements DaemonManager, LogEnabled {
+public class DefaultDaemonManager implements DaemonManager {
     private final List<RemoteDaemon> daemons = new ArrayList<>();
 
-    private Logger logger;
-
-    public void enableLogging(Logger logger) {
-        this.logger = logger;
-    }
+    @Requirement private Logger logger;
 
     public void startDaemon(
             String description,
