@@ -74,11 +74,12 @@ public class DefaultDaemonManager implements DaemonManager {
                 Runtime.getRuntime()
                         .exec(cmdline.toArray(new String[cmdline.size()]), null, workDir);
         RemoteDaemon daemon =
-                new RemoteDaemon(process, description, controlPort, daemonClass, daemonArgs);
+                new RemoteDaemon(
+                        logger, process, description, controlPort, daemonClass, daemonArgs);
         daemons.add(daemon);
         new Thread(new StreamPump(process.getInputStream(), logger, "[STDOUT] ")).start();
         new Thread(new StreamPump(process.getErrorStream(), logger, "[STDERR] ")).start();
-        daemon.startDaemon(logger);
+        daemon.startDaemon();
     }
 
     public void stopAll() throws Throwable {
@@ -89,7 +90,7 @@ public class DefaultDaemonManager implements DaemonManager {
             }
             boolean success;
             try {
-                daemon.stopDaemon(logger);
+                daemon.stopDaemon();
                 success = true;
             } catch (Throwable ex) {
                 if (savedException == null) {

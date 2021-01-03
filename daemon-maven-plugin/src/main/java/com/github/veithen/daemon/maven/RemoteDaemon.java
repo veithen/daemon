@@ -36,6 +36,7 @@ import com.github.veithen.daemon.launcher.proto.Start;
 import com.github.veithen.daemon.launcher.proto.Stop;
 
 public class RemoteDaemon {
+    private final Logger logger;
     private final Process process;
     private final String description;
     private final int controlPort;
@@ -46,11 +47,13 @@ public class RemoteDaemon {
     private MessageReader<DaemonResponse, ResponseCase> controlReader;
 
     public RemoteDaemon(
+            Logger logger,
             Process process,
             String description,
             int controlPort,
             String daemonClass,
             String[] daemonArgs) {
+        this.logger = logger;
         this.process = process;
         this.description = description;
         this.controlPort = controlPort;
@@ -66,7 +69,7 @@ public class RemoteDaemon {
         return description;
     }
 
-    public void startDaemon(Logger logger) throws Throwable {
+    public void startDaemon() throws Throwable {
         logger.debug("Attempting to establish control connection on port " + controlPort);
         while (true) {
             try {
@@ -109,7 +112,7 @@ public class RemoteDaemon {
         logger.debug("Daemon is ready");
     }
 
-    public void stopDaemon(Logger logger) throws Throwable {
+    public void stopDaemon() throws Throwable {
         controlWriter.write(DaemonRequest.newBuilder().setStop(Stop.getDefaultInstance()).build());
         controlReader.read(ResponseCase.STOPPED);
         controlSocket.close();
