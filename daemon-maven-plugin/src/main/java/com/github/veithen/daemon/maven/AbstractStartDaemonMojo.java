@@ -20,8 +20,6 @@
 package com.github.veithen.daemon.maven;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -209,23 +207,10 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
         return classpath;
     }
 
-    private int allocatePort() throws MojoFailureException {
-        try {
-            ServerSocket ss = new ServerSocket(0);
-            int port = ss.getLocalPort();
-            ss.close();
-            return port;
-        } catch (IOException ex) {
-            throw new MojoFailureException("Failed to allocate port number", ex);
-        }
-    }
-
     protected final void startDaemon(
             String description, String daemonClass, String[] args, File workDir)
             throws MojoExecutionException, MojoFailureException {
         Log log = getLog();
-
-        int controlPort = allocatePort();
 
         // Get class path
         List<File> classpath;
@@ -257,8 +242,6 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
         vmArgs.add("-cp");
         vmArgs.add(StringUtils.join(classpath.iterator(), File.pathSeparator));
         vmArgs.addAll(additionalVmArgs);
-        vmArgs.add("com.github.veithen.daemon.launcher.Launcher");
-        vmArgs.add(String.valueOf(controlPort));
         try {
             getDaemonManager()
                     .startDaemon(
@@ -266,7 +249,6 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
                             session,
                             (String[]) vmArgs.toArray(new String[vmArgs.size()]),
                             workDir,
-                            controlPort,
                             daemonClass,
                             args);
         } catch (Throwable ex) {

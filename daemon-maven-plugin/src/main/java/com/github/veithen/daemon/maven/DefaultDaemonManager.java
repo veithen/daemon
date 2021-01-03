@@ -21,7 +21,6 @@ package com.github.veithen.daemon.maven;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
@@ -38,12 +37,12 @@ public class DefaultDaemonManager implements DaemonManager {
     @Requirement private Logger logger;
     @Requirement private ToolchainManager toolchainManager;
 
+    @Override
     public void startDaemon(
             String description,
             MavenSession session,
             String[] vmArgs,
             File workDir,
-            int controlPort,
             String daemonClass,
             String[] daemonArgs)
             throws Throwable {
@@ -64,22 +63,14 @@ public class DefaultDaemonManager implements DaemonManager {
             logger.debug("Java executable: " + jvm);
         }
 
-        List<String> cmdline = new ArrayList<>();
-        cmdline.add(jvm);
-        cmdline.addAll(Arrays.asList(vmArgs));
         RemoteDaemon daemon =
                 new RemoteDaemon(
-                        logger,
-                        cmdline.toArray(new String[cmdline.size()]),
-                        workDir,
-                        description,
-                        controlPort,
-                        daemonClass,
-                        daemonArgs);
+                        logger, jvm, vmArgs, workDir, description, daemonClass, daemonArgs);
         daemons.add(daemon);
         daemon.startDaemon();
     }
 
+    @Override
     public void stopAll() throws Throwable {
         Throwable savedException = null;
         for (RemoteDaemon daemon : daemons) {

@@ -22,8 +22,11 @@ package com.github.veithen.daemon.maven;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
 
@@ -38,10 +41,10 @@ import com.github.veithen.daemon.launcher.proto.Stop;
 
 public class RemoteDaemon {
     private final Logger logger;
-    private final String[] cmdline;
+    private final String jvm;
+    private final String[] vmArgs;
     private final File workDir;
     private final String description;
-    private final int controlPort;
     private final String daemonClass;
     private final String[] daemonArgs;
     private Process process;
@@ -51,17 +54,17 @@ public class RemoteDaemon {
 
     public RemoteDaemon(
             Logger logger,
-            String[] cmdline,
+            String jvm,
+            String[] vmArgs,
             File workDir,
             String description,
-            int controlPort,
             String daemonClass,
             String[] daemonArgs) {
         this.logger = logger;
-        this.cmdline = cmdline;
+        this.jvm = jvm;
+        this.vmArgs = vmArgs;
         this.workDir = workDir;
         this.description = description;
-        this.controlPort = controlPort;
         this.daemonClass = daemonClass;
         this.daemonArgs = daemonArgs;
     }
@@ -74,11 +77,27 @@ public class RemoteDaemon {
         return description;
     }
 
+    private int allocatePort() throws IOException {
+        ServerSocket ss = new ServerSocket(0);
+        int port = ss.getLocalPort();
+        ss.close();
+        return port;
+    }
+
     public void startDaemon() throws Throwable {
+        int controlPort = allocatePort();
+        List<String> cmdline = new ArrayList<>();
+        cmdline.add(jvm);
+        cmdline.addAll(Arrays.asList(vmArgs));
+        cmdline.add("com.github.veithen.daemon.launcher.Launcher");
+        cmdline.add(String.valueOf(controlPort));
+
         if (logger.isDebugEnabled()) {
-            logger.debug("Starting process with command line: " + Arrays.asList(cmdline));
+            logger.debug("Starting process with command line: " + cmdline);
         }
-        process = Runtime.getRuntime().exec(cmdline, null, workDir);
+        process =
+                Runtime.getRuntime()
+                        .exec(cmdline.toArray(new String[cmdline.size()]), null, workDir);
         new Thread(new StreamPump(process.getInputStream(), logger, "[STDOUT] ")).start();
         new Thread(new StreamPump(process.getErrorStream(), logger, "[STDERR] ")).start();
         logger.debug("Attempting to establish control connection on port " + controlPort);

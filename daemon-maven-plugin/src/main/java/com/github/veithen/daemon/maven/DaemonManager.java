@@ -29,7 +29,6 @@ public interface DaemonManager {
             MavenSession session,
             String[] vmArgs,
             File workDir,
-            int controlPort,
             String daemonClass,
             String[] daemonArgs)
             throws Throwable;
