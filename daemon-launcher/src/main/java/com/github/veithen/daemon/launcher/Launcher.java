@@ -20,8 +20,6 @@
 package com.github.veithen.daemon.launcher;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
@@ -81,12 +79,7 @@ public final class Launcher {
     public static void main(String[] args) {
         try {
             int controlPort = Integer.parseInt(args[0]);
-            ServerSocket controlServerSocket = new ServerSocket();
-            controlServerSocket.bind(
-                    new InetSocketAddress(InetAddress.getByName("localhost"), controlPort));
-            Socket controlSocket = controlServerSocket.accept();
-            // We only accept a single connection; therefore we can close the ServerSocket here
-            controlServerSocket.close();
+            Socket controlSocket = new Socket(InetAddress.getLoopbackAddress(), controlPort);
             MessageReader<DaemonRequest, RequestCase> reader =
                     new MessageReader<>(
                             controlSocket.getInputStream(),

@@ -20,10 +20,10 @@
 package com.github.veithen.daemon.maven;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,44 +77,42 @@ public class RemoteDaemon {
         return description;
     }
 
-    private int allocatePort() throws IOException {
-        ServerSocket ss = new ServerSocket(0);
-        int port = ss.getLocalPort();
-        ss.close();
-        return port;
-    }
-
     public void startDaemon() throws Throwable {
-        int controlPort = allocatePort();
-        List<String> cmdline = new ArrayList<>();
-        cmdline.add(jvm);
-        cmdline.addAll(Arrays.asList(vmArgs));
-        cmdline.add("com.github.veithen.daemon.launcher.Launcher");
-        cmdline.add(String.valueOf(controlPort));
+        ServerSocket controlServerSocket = new ServerSocket(0, 1, InetAddress.getLoopbackAddress());
+        try {
+            controlServerSocket.setSoTimeout(100);
+            List<String> cmdline = new ArrayList<>();
+            cmdline.add(jvm);
+            cmdline.addAll(Arrays.asList(vmArgs));
+            cmdline.add("com.github.veithen.daemon.launcher.Launcher");
+            cmdline.add(String.valueOf(controlServerSocket.getLocalPort()));
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Starting process with command line: " + cmdline);
-        }
-        process =
-                Runtime.getRuntime()
-                        .exec(cmdline.toArray(new String[cmdline.size()]), null, workDir);
-        new Thread(new StreamPump(process.getInputStream(), logger, "[STDOUT] ")).start();
-        new Thread(new StreamPump(process.getErrorStream(), logger, "[STDERR] ")).start();
-        logger.debug("Attempting to establish control connection on port " + controlPort);
-        while (true) {
-            try {
-                controlSocket = new Socket(InetAddress.getByName("localhost"), controlPort);
-                break;
-            } catch (IOException ex) {
-                try {
-                    int exitValue = process.exitValue();
-                    throw new IllegalStateException(
-                            "Process terminated prematurely with exit code " + exitValue);
-                } catch (IllegalThreadStateException ex2) {
-                    // Process is still running; continue
-                }
-                Thread.sleep(100);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Starting process with command line: " + cmdline);
             }
+            process =
+                    Runtime.getRuntime()
+                            .exec(cmdline.toArray(new String[cmdline.size()]), null, workDir);
+            new Thread(new StreamPump(process.getInputStream(), logger, "[STDOUT] ")).start();
+            new Thread(new StreamPump(process.getErrorStream(), logger, "[STDERR] ")).start();
+            logger.debug(
+                    "Waiting for control connection on port " + controlServerSocket.getLocalPort());
+            while (true) {
+                try {
+                    controlSocket = controlServerSocket.accept();
+                    break;
+                } catch (SocketTimeoutException ex) {
+                    try {
+                        int exitValue = process.exitValue();
+                        throw new IllegalStateException(
+                                "Process terminated prematurely with exit code " + exitValue);
+                    } catch (IllegalThreadStateException ex2) {
+                        // Process is still running; continue
+                    }
+                }
+            }
+        } finally {
+            controlServerSocket.close();
         }
         logger.debug("Control connection established");
         controlWriter = new MessageWriter<DaemonRequest>(controlSocket.getOutputStream());
