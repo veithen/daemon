@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.StringUtils;
 
 import com.github.veithen.daemon.launcher.proto.DaemonRequest;
 import com.github.veithen.daemon.launcher.proto.DaemonResponse;
@@ -45,6 +46,7 @@ public class RemoteDaemon {
     private final String[] vmArgs;
     private final File workDir;
     private final String description;
+    private final File[] classpath;
     private final String daemonClass;
     private final String[] daemonArgs;
     private Process process;
@@ -58,6 +60,7 @@ public class RemoteDaemon {
             String[] vmArgs,
             File workDir,
             String description,
+            File[] classpath,
             String daemonClass,
             String[] daemonArgs) {
         this.logger = logger;
@@ -65,6 +68,7 @@ public class RemoteDaemon {
         this.vmArgs = vmArgs;
         this.workDir = workDir;
         this.description = description;
+        this.classpath = classpath;
         this.daemonClass = daemonClass;
         this.daemonArgs = daemonArgs;
     }
@@ -83,6 +87,8 @@ public class RemoteDaemon {
             controlServerSocket.setSoTimeout(100);
             List<String> cmdline = new ArrayList<>();
             cmdline.add(jvm);
+            cmdline.add("-cp");
+            cmdline.add(StringUtils.join(classpath, File.pathSeparator));
             cmdline.addAll(Arrays.asList(vmArgs));
             cmdline.add("com.github.veithen.daemon.launcher.Launcher");
             cmdline.add(String.valueOf(controlServerSocket.getLocalPort()));

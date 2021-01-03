@@ -43,6 +43,7 @@ public class DefaultDaemonManager implements DaemonManager {
             MavenSession session,
             String[] vmArgs,
             File workDir,
+            File[] classpath,
             String daemonClass,
             String[] daemonArgs)
             throws Throwable {
@@ -65,7 +66,14 @@ public class DefaultDaemonManager implements DaemonManager {
 
         RemoteDaemon daemon =
                 new RemoteDaemon(
-                        logger, jvm, vmArgs, workDir, description, daemonClass, daemonArgs);
+                        logger,
+                        jvm,
+                        vmArgs,
+                        workDir,
+                        description,
+                        classpath,
+                        daemonClass,
+                        daemonArgs);
         daemons.add(daemon);
         daemon.startDaemon();
     }

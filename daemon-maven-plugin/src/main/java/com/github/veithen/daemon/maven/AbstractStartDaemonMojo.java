@@ -50,7 +50,6 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.util.StringUtils;
 
 public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
         implements LogEnabled {
@@ -224,31 +223,28 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
         }
 
         // Compute JVM arguments
-        List<String> additionalVmArgs = new ArrayList<>();
+        List<String> vmArgs = new ArrayList<>();
         if (debug) {
-            processVMArgs(additionalVmArgs, debugArgs);
+            processVMArgs(vmArgs, debugArgs);
         }
         if (jmx) {
-            processVMArgs(additionalVmArgs, jmxArgs);
+            processVMArgs(vmArgs, jmxArgs);
         }
         if (argLine != null) {
-            processVMArgs(additionalVmArgs, argLine);
+            processVMArgs(vmArgs, argLine);
         }
         if (log.isDebugEnabled()) {
-            log.debug("Additional VM args: " + additionalVmArgs);
+            log.debug("Additional VM args: " + vmArgs);
         }
 
-        List<String> vmArgs = new ArrayList<>();
-        vmArgs.add("-cp");
-        vmArgs.add(StringUtils.join(classpath.iterator(), File.pathSeparator));
-        vmArgs.addAll(additionalVmArgs);
         try {
             getDaemonManager()
                     .startDaemon(
                             description,
                             session,
-                            (String[]) vmArgs.toArray(new String[vmArgs.size()]),
+                            vmArgs.toArray(new String[vmArgs.size()]),
                             workDir,
+                            classpath.toArray(new File[classpath.size()]),
                             daemonClass,
                             args);
         } catch (Throwable ex) {
