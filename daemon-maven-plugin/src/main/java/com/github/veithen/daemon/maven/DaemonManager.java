@@ -21,10 +21,13 @@ package com.github.veithen.daemon.maven;
 
 import java.io.File;
 
+import org.apache.maven.execution.MavenSession;
+
 public interface DaemonManager {
     void startDaemon(
             String description,
-            String[] cmdline,
+            MavenSession session,
+            String[] vmArgs,
             File workDir,
             int controlPort,
             String daemonClass,

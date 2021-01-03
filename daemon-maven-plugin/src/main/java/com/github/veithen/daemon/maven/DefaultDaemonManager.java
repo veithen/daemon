@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.toolchain.Toolchain;
+import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -33,19 +36,43 @@ public class DefaultDaemonManager implements DaemonManager {
     private final List<RemoteDaemon> daemons = new ArrayList<>();
 
     @Requirement private Logger logger;
+    @Requirement private ToolchainManager toolchainManager;
 
     public void startDaemon(
             String description,
-            String[] cmdline,
+            MavenSession session,
+            String[] vmArgs,
             File workDir,
             int controlPort,
             String daemonClass,
             String[] daemonArgs)
             throws Throwable {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Starting process with command line: " + Arrays.asList(cmdline));
+        // Locate java executable to use
+        String jvm;
+        Toolchain tc = toolchainManager.getToolchainFromBuildContext("jdk", session);
+        if (tc != null) {
+            jvm = tc.findTool("java");
+        } else {
+            jvm =
+                    System.getProperty("java.home")
+                            + File.separator
+                            + "bin"
+                            + File.separator
+                            + "java";
         }
-        Process process = Runtime.getRuntime().exec(cmdline, null, workDir);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Java executable: " + jvm);
+        }
+
+        List<String> cmdline = new ArrayList<>();
+        cmdline.add(jvm);
+        cmdline.addAll(Arrays.asList(vmArgs));
+        if (logger.isDebugEnabled()) {
+            logger.debug("Starting process with command line: " + cmdline);
+        }
+        Process process =
+                Runtime.getRuntime()
+                        .exec(cmdline.toArray(new String[cmdline.size()]), null, workDir);
         RemoteDaemon daemon =
                 new RemoteDaemon(process, description, controlPort, daemonClass, daemonArgs);
         daemons.add(daemon);

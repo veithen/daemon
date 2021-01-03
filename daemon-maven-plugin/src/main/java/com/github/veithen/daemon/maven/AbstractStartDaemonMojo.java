@@ -50,8 +50,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.artifact.InvalidDependencyVersionException;
-import org.apache.maven.toolchain.Toolchain;
-import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
@@ -83,8 +81,6 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
     @Component private ArtifactCollector artifactCollector;
 
     @Component private ArtifactMetadataSource artifactMetadataSource;
-
-    @Component private ToolchainManager toolchainManager;
 
     /** The arguments to pass to the JVM when debug mode is enabled. */
     @Parameter(
@@ -229,23 +225,6 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
             throws MojoExecutionException, MojoFailureException {
         Log log = getLog();
 
-        // Locate java executable to use
-        String jvm;
-        Toolchain tc = toolchainManager.getToolchainFromBuildContext("jdk", session);
-        if (tc != null) {
-            jvm = tc.findTool("java");
-        } else {
-            jvm =
-                    System.getProperty("java.home")
-                            + File.separator
-                            + "bin"
-                            + File.separator
-                            + "java";
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Java executable: " + jvm);
-        }
-
         int controlPort = allocatePort();
 
         // Get class path
@@ -260,32 +239,32 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
         }
 
         // Compute JVM arguments
-        List<String> vmArgs = new ArrayList<>();
+        List<String> additionalVmArgs = new ArrayList<>();
         if (debug) {
-            processVMArgs(vmArgs, debugArgs);
+            processVMArgs(additionalVmArgs, debugArgs);
         }
         if (jmx) {
-            processVMArgs(vmArgs, jmxArgs);
+            processVMArgs(additionalVmArgs, jmxArgs);
         }
         if (argLine != null) {
-            processVMArgs(vmArgs, argLine);
+            processVMArgs(additionalVmArgs, argLine);
         }
         if (log.isDebugEnabled()) {
-            log.debug("Additional VM args: " + vmArgs);
+            log.debug("Additional VM args: " + additionalVmArgs);
         }
 
-        List<String> cmdline = new ArrayList<>();
-        cmdline.add(jvm);
-        cmdline.add("-cp");
-        cmdline.add(StringUtils.join(classpath.iterator(), File.pathSeparator));
-        cmdline.addAll(vmArgs);
-        cmdline.add("com.github.veithen.daemon.launcher.Launcher");
-        cmdline.add(String.valueOf(controlPort));
+        List<String> vmArgs = new ArrayList<>();
+        vmArgs.add("-cp");
+        vmArgs.add(StringUtils.join(classpath.iterator(), File.pathSeparator));
+        vmArgs.addAll(additionalVmArgs);
+        vmArgs.add("com.github.veithen.daemon.launcher.Launcher");
+        vmArgs.add(String.valueOf(controlPort));
         try {
             getDaemonManager()
                     .startDaemon(
                             description,
-                            (String[]) cmdline.toArray(new String[cmdline.size()]),
+                            session,
+                            (String[]) vmArgs.toArray(new String[vmArgs.size()]),
                             workDir,
                             controlPort,
                             daemonClass,
