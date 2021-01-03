@@ -67,18 +67,16 @@ public class DefaultDaemonManager implements DaemonManager {
         List<String> cmdline = new ArrayList<>();
         cmdline.add(jvm);
         cmdline.addAll(Arrays.asList(vmArgs));
-        if (logger.isDebugEnabled()) {
-            logger.debug("Starting process with command line: " + cmdline);
-        }
-        Process process =
-                Runtime.getRuntime()
-                        .exec(cmdline.toArray(new String[cmdline.size()]), null, workDir);
         RemoteDaemon daemon =
                 new RemoteDaemon(
-                        logger, process, description, controlPort, daemonClass, daemonArgs);
+                        logger,
+                        cmdline.toArray(new String[cmdline.size()]),
+                        workDir,
+                        description,
+                        controlPort,
+                        daemonClass,
+                        daemonArgs);
         daemons.add(daemon);
-        new Thread(new StreamPump(process.getInputStream(), logger, "[STDOUT] ")).start();
-        new Thread(new StreamPump(process.getErrorStream(), logger, "[STDERR] ")).start();
         daemon.startDaemon();
     }
 

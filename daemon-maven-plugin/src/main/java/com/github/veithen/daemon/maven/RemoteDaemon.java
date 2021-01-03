@@ -19,6 +19,7 @@
  */
 package com.github.veithen.daemon.maven;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -37,24 +38,28 @@ import com.github.veithen.daemon.launcher.proto.Stop;
 
 public class RemoteDaemon {
     private final Logger logger;
-    private final Process process;
+    private final String[] cmdline;
+    private final File workDir;
     private final String description;
     private final int controlPort;
     private final String daemonClass;
     private final String[] daemonArgs;
+    private Process process;
     private Socket controlSocket;
     private MessageWriter<DaemonRequest> controlWriter;
     private MessageReader<DaemonResponse, ResponseCase> controlReader;
 
     public RemoteDaemon(
             Logger logger,
-            Process process,
+            String[] cmdline,
+            File workDir,
             String description,
             int controlPort,
             String daemonClass,
             String[] daemonArgs) {
         this.logger = logger;
-        this.process = process;
+        this.cmdline = cmdline;
+        this.workDir = workDir;
         this.description = description;
         this.controlPort = controlPort;
         this.daemonClass = daemonClass;
@@ -70,6 +75,12 @@ public class RemoteDaemon {
     }
 
     public void startDaemon() throws Throwable {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Starting process with command line: " + Arrays.asList(cmdline));
+        }
+        process = Runtime.getRuntime().exec(cmdline, null, workDir);
+        new Thread(new StreamPump(process.getInputStream(), logger, "[STDOUT] ")).start();
+        new Thread(new StreamPump(process.getErrorStream(), logger, "[STDERR] ")).start();
         logger.debug("Attempting to establish control connection on port " + controlPort);
         while (true) {
             try {
