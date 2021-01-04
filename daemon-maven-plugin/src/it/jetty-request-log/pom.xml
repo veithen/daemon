@@ -56,21 +56,26 @@
                     <execution>
                         <id>start-jetty</id>
                         <goals>
-                            <goal>start-webapp</goal>
+                            <goal>start</goal>
                         </goals>
                         <configuration>
+                            <daemonArtifact>
+                                <groupId>@project.groupId@</groupId>
+                                <artifactId>jetty-daemon</artifactId>
+                                <version>@project.version@</version>
+                            </daemonArtifact>
                             <ports>
                                 <port>
                                     <name>http</name>
                                     <propertyName>jetty.httpPort</propertyName>
                                 </port>
                             </ports>
-                            <webappConfiguration>
+                            <daemonConfiguration>
                                 <resourceBases>
                                     <resourceBase>src/test/webapp</resourceBase>
                                 </resourceBases>
                                 <requestLog>${project.build.directory}/request.log</requestLog>
-                            </webappConfiguration>
+                            </daemonConfiguration>
                             <argLine>@argLine@</argLine>
                         </configuration>
                     </execution>

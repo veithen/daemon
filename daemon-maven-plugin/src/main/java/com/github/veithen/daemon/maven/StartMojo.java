@@ -33,11 +33,19 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo {
+/** Start a daemon. */
+@Mojo(
+        name = "start",
+        defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST,
+        requiresDependencyResolution = ResolutionScope.TEST)
+public final class StartMojo extends AbstractDaemonControlMojo {
     /** The maven project. */
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
@@ -45,6 +53,12 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
     /** The current build session instance. This is used for toolchain manager API calls. */
     @Parameter(property = "session", required = true, readonly = true)
     private MavenSession session;
+
+    @Parameter(required = true)
+    private DaemonArtifact daemonArtifact;
+
+    @Parameter(required = true)
+    private PlexusConfiguration daemonConfiguration;
 
     /** The arguments to pass to the JVM when debug mode is enabled. */
     @Parameter(
@@ -100,9 +114,8 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
 
     @Component private MojoExecution mojoExecution;
 
-    protected final void startDaemon(
-            DaemonArtifact daemonArtifact, PlexusConfiguration configuration)
-            throws MojoExecutionException, MojoFailureException {
+    @Override
+    protected final void doExecute() throws MojoExecutionException, MojoFailureException {
         Log log = getLog();
 
         // Compute JVM arguments
@@ -140,7 +153,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
                                     workDir,
                                     daemonArtifact,
                                     project.getTestClasspathElements(),
-                                    configuration,
+                                    daemonConfiguration,
                                     new PluginParameterExpressionEvaluator(session, mojoExecution),
                                     portsIn);
         } catch (Throwable ex) {
@@ -178,10 +191,4 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
     private static void processVMArgs(List<String> vmArgs, String args) {
         vmArgs.addAll(Arrays.asList(args.trim().split(" +")));
     }
-
-    protected final void doExecute() throws MojoExecutionException, MojoFailureException {
-        doStartDaemon();
-    }
-
-    protected abstract void doStartDaemon() throws MojoExecutionException, MojoFailureException;
 }
