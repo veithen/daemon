@@ -78,10 +78,12 @@
                             <goal>start-webapp</goal>
                         </goals>
                         <configuration>
-                            <port>${jetty.httpPort}</port>
-                            <resourceBases>
-                                <resourceBase>src/test/webapp</resourceBase>
-                            </resourceBases>
+                            <webappConfiguration>
+                                <port>${jetty.httpPort}</port>
+                                <resourceBases>
+                                    <resourceBase>src/test/webapp</resourceBase>
+                                </resourceBases>
+                            </webappConfiguration>
                             <argLine>@argLine@</argLine>
                         </configuration>
                     </execution>

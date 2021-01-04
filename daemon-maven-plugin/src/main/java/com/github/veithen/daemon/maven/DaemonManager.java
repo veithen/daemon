@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
+import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 public interface DaemonManager {
     void startDaemon(
@@ -32,7 +34,8 @@ public interface DaemonManager {
             File workDir,
             DaemonArtifact daemonArtifact,
             List<String> testClassPath,
-            String[] daemonArgs)
+            PlexusConfiguration configuration,
+            ExpressionEvaluator expressionEvaluator)
             throws Throwable;
 
     void stopAll() throws Throwable;

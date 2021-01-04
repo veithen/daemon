@@ -78,12 +78,14 @@
                             <goal>start-webapp</goal>
                         </goals>
                         <configuration>
-                            <port>${jetty.httpPort}</port>
-                            <resourceBases>
-                                <resourceBase>src/test/webapp</resourceBase>
-                            </resourceBases>
+                            <webappConfiguration>
+                                <port>${jetty.httpPort}</port>
+                                <resourceBases>
+                                    <resourceBase>src/test/webapp</resourceBase>
+                                </resourceBases>
+                                <requestLog>${project.build.directory}/request.log</requestLog>
+                            </webappConfiguration>
                             <argLine>@argLine@</argLine>
-                            <requestLog>${project.build.directory}/request.log</requestLog>
                         </configuration>
                     </execution>
                     <execution>

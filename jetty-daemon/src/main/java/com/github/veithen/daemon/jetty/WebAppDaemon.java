@@ -19,14 +19,8 @@
  */
 package com.github.veithen.daemon.jetty;
 
-import java.io.File;
 import java.net.URLClassLoader;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
@@ -46,33 +40,8 @@ public class WebAppDaemon implements Daemon<Configuration> {
     }
 
     @Override
-    public void init(DaemonContext daemonContext) throws Exception {
-        Options options = new Options();
-
-        {
-            Option option = new Option("p", true, "the HTTP port");
-            option.setArgName("port");
-            option.setRequired(true);
-            options.addOption(option);
-        }
-
-        {
-            Option option = new Option("r", true, "a list of resource directories");
-            option.setArgName("dirs");
-            option.setRequired(true);
-            options.addOption(option);
-        }
-
-        {
-            Option option = new Option("l", true, "enable request logging");
-            option.setArgName("request-log");
-            options.addOption(option);
-        }
-
-        CommandLineParser parser = new GnuParser();
-        CommandLine cmdLine = parser.parse(options, daemonContext.getArguments());
-
-        server = new Server(Integer.parseInt(cmdLine.getOptionValue("p")));
+    public void init(Configuration configuration, DaemonContext daemonContext) throws Exception {
+        server = new Server(configuration.getPort());
 
         Thread.currentThread()
                 .setContextClassLoader(
@@ -88,15 +57,14 @@ public class WebAppDaemon implements Daemon<Configuration> {
                     }
                 };
         server.setHandler(context);
-        String[] resourceDirs = cmdLine.getOptionValue("r").split(File.pathSeparator);
-        Resource[] resources = new Resource[resourceDirs.length];
-        for (int i = 0; i < resourceDirs.length; i++) {
-            resources[i] = Resource.newResource(resourceDirs[i]);
-        }
-        context.setBaseResource(new ResourceCollection(resources));
+        context.setBaseResource(
+                new ResourceCollection(
+                        configuration
+                                .getResourceBasesList()
+                                .toArray(new String[configuration.getResourceBasesList().size()])));
 
-        String requestLog = cmdLine.getOptionValue("l");
-        if (requestLog != null) {
+        String requestLog = configuration.getRequestLog();
+        if (!requestLog.isEmpty()) {
             server.setRequestLog(
                     new CustomRequestLog(requestLog, CustomRequestLog.EXTENDED_NCSA_FORMAT));
         }

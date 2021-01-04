@@ -25,11 +25,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo {
     /** The maven project. */
@@ -75,8 +79,13 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
     @Parameter(property = "argLine")
     private String argLine;
 
+    @Component private MojoExecution mojoExecution;
+
     protected final void startDaemon(
-            String description, DaemonArtifact daemonArtifact, String[] args, File workDir)
+            String description,
+            DaemonArtifact daemonArtifact,
+            PlexusConfiguration configuration,
+            File workDir)
             throws MojoExecutionException, MojoFailureException {
         Log log = getLog();
 
@@ -104,7 +113,8 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
                             workDir,
                             daemonArtifact,
                             project.getTestClasspathElements(),
-                            args);
+                            configuration,
+                            new PluginParameterExpressionEvaluator(session, mojoExecution));
         } catch (Throwable ex) {
             throw new MojoFailureException("Failed to start server", ex);
         }

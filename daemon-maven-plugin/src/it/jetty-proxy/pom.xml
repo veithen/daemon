@@ -79,12 +79,14 @@
                             <goal>start-webapp</goal>
                         </goals>
                         <configuration>
-                            <port>${jetty.httpPort}</port>
-                            <resourceBases>
-                                <resourceBase>src/test/webapp/main</resourceBase>
-                            </resourceBases>
+                            <webappConfiguration>
+                                <port>${jetty.httpPort}</port>
+                                <resourceBases>
+                                    <resourceBase>src/test/webapp/main</resourceBase>
+                                </resourceBases>
+                                <requestLog>${project.build.directory}/webapp.log</requestLog>
+                            </webappConfiguration>
                             <argLine>@argLine@</argLine>
-                            <requestLog>${project.build.directory}/webapp.log</requestLog>
                         </configuration>
                     </execution>
                     <execution>
@@ -93,12 +95,14 @@
                             <goal>start-webapp</goal>
                         </goals>
                         <configuration>
-                            <port>${jetty.proxyPort}</port>
-                            <resourceBases>
-                                <resourceBase>src/test/webapp/proxy</resourceBase>
-                            </resourceBases>
+                            <webappConfiguration>
+                                <port>${jetty.proxyPort}</port>
+                                <resourceBases>
+                                    <resourceBase>src/test/webapp/proxy</resourceBase>
+                                </resourceBases>
+                                <requestLog>${project.build.directory}/proxy.log</requestLog>
+                            </webappConfiguration>
                             <argLine>@argLine@</argLine>
-                            <requestLog>${project.build.directory}/proxy.log</requestLog>
                         </configuration>
                     </execution>
                     <execution>

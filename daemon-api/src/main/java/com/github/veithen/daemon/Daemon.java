@@ -24,7 +24,7 @@ import com.google.protobuf.Message;
 public interface Daemon<T extends Message> {
     Class<T> getConfigurationType();
 
-    void init(DaemonContext context) throws Exception;
+    void init(T configuration, DaemonContext context) throws Exception;
 
     void start() throws Exception;
 

@@ -24,17 +24,10 @@ import java.net.URL;
 import com.github.veithen.daemon.DaemonContext;
 
 final class DaemonContextImpl implements DaemonContext {
-    private final String[] args;
     private final URL[] testClasspath;
 
-    public DaemonContextImpl(String[] args, URL[] testClasspath) {
-        this.args = args;
+    public DaemonContextImpl(URL[] testClasspath) {
         this.testClasspath = testClasspath;
-    }
-
-    @Override
-    public String[] getArguments() {
-        return args;
     }
 
     @Override

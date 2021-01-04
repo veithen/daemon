@@ -45,6 +45,8 @@ import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.IOUtil;
 import org.eclipse.aether.util.artifact.JavaScopes;
@@ -104,7 +106,8 @@ public class DefaultDaemonManager implements DaemonManager {
             File workDir,
             DaemonArtifact daemonArtifact,
             List<String> testClasspath,
-            String[] daemonArgs)
+            PlexusConfiguration configuration,
+            ExpressionEvaluator expressionEvaluator)
             throws Throwable {
         // Locate java executable to use
         String jvm;
@@ -143,7 +146,8 @@ public class DefaultDaemonManager implements DaemonManager {
                                 daemonArtifact.getVersion(),
                                 MavenProject::getRemoteArtifactRepositories),
                         testClasspath,
-                        daemonArgs);
+                        configuration,
+                        expressionEvaluator);
         daemons.add(daemon);
         daemon.startDaemon();
     }

@@ -20,9 +20,6 @@
 package com.github.veithen.daemon.maven;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -30,7 +27,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.codehaus.plexus.util.StringUtils;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 @Mojo(
         name = "start-webapp",
@@ -38,9 +35,7 @@ import org.codehaus.plexus.util.StringUtils;
         requiresDependencyResolution = ResolutionScope.TEST)
 public class StartWebAppMojo extends AbstractStartWebServerMojo {
     @Parameter(required = true)
-    private File[] resourceBases;
-
-    @Parameter() private File requestLog;
+    private PlexusConfiguration webappConfiguration;
 
     @Parameter(property = "plugin.version", required = true, readonly = true)
     private String pluginVersion;
@@ -50,21 +45,7 @@ public class StartWebAppMojo extends AbstractStartWebServerMojo {
         daemonArtifact.setGroupId("com.github.veithen.daemon");
         daemonArtifact.setArtifactId("jetty-daemon");
         daemonArtifact.setVersion(pluginVersion);
-        List<String> args =
-                new ArrayList<>(
-                        Arrays.asList(
-                                "-p",
-                                String.valueOf(port),
-                                "-r",
-                                StringUtils.join(resourceBases, File.pathSeparator)));
-        if (requestLog != null) {
-            args.add("-l");
-            args.add(requestLog.getAbsolutePath());
-        }
         startDaemon(
-                "HTTP server on port " + port,
-                daemonArtifact,
-                args.toArray(new String[args.size()]),
-                new File("."));
+                "HTTP server on port " + port, daemonArtifact, webappConfiguration, new File("."));
     }
 }

@@ -27,6 +27,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 /** Start a daemon. */
 @Mojo(
@@ -37,8 +38,8 @@ public class StartDaemonMojo extends AbstractStartDaemonMojo {
     @Parameter(required = true)
     private DaemonArtifact daemonArtifact;
 
-    /** The arguments to be passed to the main class. */
-    @Parameter private String[] args;
+    @Parameter(required = true)
+    private PlexusConfiguration daemonConfiguration;
 
     /** The working directory for the process. */
     @Parameter(defaultValue = "${project.build.directory}/work", required = true)
@@ -46,6 +47,6 @@ public class StartDaemonMojo extends AbstractStartDaemonMojo {
 
     protected void doStartDaemon() throws MojoExecutionException, MojoFailureException {
         workDir.mkdirs();
-        startDaemon(/* TODO */ "Daemon", daemonArtifact, args, workDir);
+        startDaemon(/* TODO */ "Daemon", daemonArtifact, daemonConfiguration, workDir);
     }
 }

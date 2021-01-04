@@ -43,6 +43,7 @@ import com.github.veithen.daemon.launcher.proto.Start;
 import com.github.veithen.daemon.launcher.proto.Stopped;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Message;
+import com.google.protobuf.Parser;
 
 /**
  * Main class to launch and control a {@link Daemon} implementation. This class is typically
@@ -97,6 +98,11 @@ public final class Launcher {
                 .toArray(URL[]::new);
     }
 
+    private static <T extends Message> void initDaemon(
+            Daemon<T> daemon, Object configuration, DaemonContext daemonContext) throws Exception {
+        daemon.init(daemon.getConfigurationType().cast(configuration), daemonContext);
+    }
+
     public static void main(String[] args) {
         try {
             int controlPort = Integer.parseInt(args[0]);
@@ -134,11 +140,11 @@ public final class Launcher {
                             .build());
 
             Start startRequest = reader.read(RequestCase.START).getStart();
-            List<String> daemonArgs = startRequest.getDaemonArgList();
-            daemon.init(
-                    new DaemonContextImpl(
-                            daemonArgs.toArray(new String[daemonArgs.size()]),
-                            toURLs(startRequest.getTestClasspathEntryList())));
+            initDaemon(
+                    daemon,
+                    ((Parser<?>) configurationType.getMethod("parser").invoke(null))
+                            .parseFrom(startRequest.getConfiguration()),
+                    new DaemonContextImpl(toURLs(startRequest.getTestClasspathEntryList())));
             daemon.start();
             writer.write(DaemonResponse.newBuilder().setReady(Ready.getDefaultInstance()).build());
 

@@ -29,6 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -53,7 +55,8 @@ public class RemoteDaemon {
     private final List<File> launcherClasspath;
     private final List<File> daemonClasspath;
     private final List<String> testClasspath;
-    private final String[] daemonArgs;
+    private final PlexusConfiguration configuration;
+    private final ExpressionEvaluator expressionEvaluator;
     private Process process;
     private Socket controlSocket;
     private MessageWriter<DaemonRequest> controlWriter;
@@ -68,7 +71,8 @@ public class RemoteDaemon {
             List<File> launcherClasspath,
             List<File> daemonClasspath,
             List<String> testClasspath,
-            String[] daemonArgs) {
+            PlexusConfiguration plexusConfiguration,
+            ExpressionEvaluator expressionEvaluator) {
         this.logger = logger;
         this.jvm = jvm;
         this.vmArgs = vmArgs;
@@ -77,7 +81,8 @@ public class RemoteDaemon {
         this.launcherClasspath = launcherClasspath;
         this.daemonClasspath = daemonClasspath;
         this.testClasspath = testClasspath;
-        this.daemonArgs = daemonArgs;
+        this.configuration = plexusConfiguration;
+        this.expressionEvaluator = expressionEvaluator;
     }
 
     public Process getProcess() {
@@ -157,8 +162,13 @@ public class RemoteDaemon {
                 DaemonRequest.newBuilder()
                         .setStart(
                                 Start.newBuilder()
+                                        .setConfiguration(
+                                                PlexusConfigurationConverter.convert(
+                                                                configuration,
+                                                                expressionEvaluator,
+                                                                descriptor)
+                                                        .toByteString())
                                         .addAllTestClasspathEntry(testClasspath)
-                                        .addAllDaemonArg(Arrays.asList(daemonArgs))
                                         .build())
                         .build());
         logger.debug("Waiting for daemon to become ready");
