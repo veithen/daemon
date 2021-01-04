@@ -118,6 +118,15 @@ public final class StartMojo extends AbstractDaemonControlMojo {
     protected final void doExecute() throws MojoExecutionException, MojoFailureException {
         Log log = getLog();
 
+        // Use the plugin group ID and version as default values for the daemon artifact.
+        if (daemonArtifact.getGroupId() == null) {
+            daemonArtifact.setGroupId(mojoExecution.getPlugin().getGroupId());
+        }
+        if (daemonArtifact.getVersion() == null
+                && daemonArtifact.getGroupId().equals(mojoExecution.getPlugin().getGroupId())) {
+            daemonArtifact.setVersion(mojoExecution.getPlugin().getVersion());
+        }
+
         // Compute JVM arguments
         List<String> vmArgs = new ArrayList<>();
         if (debug) {
