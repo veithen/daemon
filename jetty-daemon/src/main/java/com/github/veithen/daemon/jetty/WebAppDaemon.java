@@ -20,7 +20,9 @@
 package com.github.veithen.daemon.jetty;
 
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jetty.server.CustomRequestLog;
@@ -51,10 +53,14 @@ public class WebAppDaemon implements Daemon<Configuration> {
                 .setContextClassLoader(
                         new URLClassLoader(
                                 daemonContext.getTestClasspath(), getClass().getClassLoader()));
+        List<Resource> resources = new ArrayList<>();
+        for (String resourceBase : configuration.getResourceBasesList()) {
+            resources.add(Resource.newResource(resourceBase));
+        }
         WebAppContext context =
                 new WebAppContext(
                         server,
-                        (Resource) null,
+                        resources.size() == 1 ? resources.get(0) : null,
                         configuration.getContextPath().isEmpty()
                                 ? "/"
                                 : configuration.getContextPath()) {
@@ -66,11 +72,10 @@ public class WebAppDaemon implements Daemon<Configuration> {
                     }
                 };
         server.setHandler(context);
-        context.setBaseResource(
-                new ResourceCollection(
-                        configuration
-                                .getResourceBasesList()
-                                .toArray(new String[configuration.getResourceBasesList().size()])));
+        if (resources.size() > 1) {
+            context.setBaseResource(
+                    new ResourceCollection(resources.toArray(new Resource[resources.size()])));
+        }
 
         String requestLog = configuration.getRequestLog();
         if (!requestLog.isEmpty()) {
