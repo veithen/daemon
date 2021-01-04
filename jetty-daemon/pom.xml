@@ -51,6 +51,14 @@
             <artifactId>jetty-webapp</artifactId>
             <version>9.4.35.v20201120</version>
         </dependency>
+
+        <!-- Ensure that daemon-maven-plugin is built before this project. -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>daemon-maven-plugin</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -64,6 +72,39 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.veithen.maven</groupId>
+                <artifactId>hermetic-maven-plugin</artifactId>
+                <configuration>
+                    <allowExec>true</allowExec>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.veithen.maven</groupId>
+                <artifactId>resolver-proxy-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>start</goal>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <goals>verify -e</goals>
+                            <streamLogs>true</streamLogs>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

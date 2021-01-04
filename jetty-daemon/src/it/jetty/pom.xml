@@ -20,15 +20,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>test</groupId>
-    <artifactId>jetty-proxy</artifactId>
+    <artifactId>jetty</artifactId>
     <version>1</version>
 
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-proxy</artifactId>
-            <version>9.4.35.v20201120</version>
-            <scope>test</scope>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -50,7 +50,7 @@
             </plugin>
             <plugin>
                 <groupId>@project.groupId@</groupId>
-                <artifactId>@project.artifactId@</artifactId>
+                <artifactId>daemon-maven-plugin</artifactId>
                 <version>@project.version@</version>
                 <executions>
                     <execution>
@@ -60,7 +60,7 @@
                         </goals>
                         <configuration>
                             <daemonArtifact>
-                                <artifactId>jetty-daemon</artifactId>
+                                <artifactId>@project.artifactId@</artifactId>
                             </daemonArtifact>
                             <ports>
                                 <port>
@@ -70,33 +70,9 @@
                             </ports>
                             <daemonConfiguration>
                                 <resourceBases>
-                                    <resourceBase>src/test/webapp/main</resourceBase>
+                                    <resourceBase>src/test/webapp</resourceBase>
                                 </resourceBases>
-                                <requestLog>${project.build.directory}/webapp.log</requestLog>
-                            </daemonConfiguration>
-                            <argLine>@argLine@</argLine>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>start-proxy</id>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                        <configuration>
-                            <daemonArtifact>
-                                <artifactId>jetty-daemon</artifactId>
-                            </daemonArtifact>
-                            <ports>
-                                <port>
-                                    <name>http</name>
-                                    <propertyName>jetty.proxyPort</propertyName>
-                                </port>
-                            </ports>
-                            <daemonConfiguration>
-                                <resourceBases>
-                                    <resourceBase>src/test/webapp/proxy</resourceBase>
-                                </resourceBases>
-                                <requestLog>${project.build.directory}/proxy.log</requestLog>
+                                <contextPath>/foobar</contextPath>
                             </daemonConfiguration>
                             <argLine>@argLine@</argLine>
                         </configuration>
@@ -121,7 +97,6 @@
                         <configuration>
                             <systemPropertyVariables>
                                 <jetty.httpPort>${jetty.httpPort}</jetty.httpPort>
-                                <jetty.proxyPort>${jetty.proxyPort}</jetty.proxyPort>
                             </systemPropertyVariables>
                         </configuration>
                     </execution>
