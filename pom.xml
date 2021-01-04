@@ -97,6 +97,7 @@
                         <protocArtifact>com.google.protobuf:protoc:${protobuf.version}</protocArtifact>
                         <type>java</type>
                         <outputDirectorySuffix>protobuf</outputDirectorySuffix>
+                        <includeMavenTypes>transitive</includeMavenTypes>
                     </configuration>
                 </plugin>
             </plugins>

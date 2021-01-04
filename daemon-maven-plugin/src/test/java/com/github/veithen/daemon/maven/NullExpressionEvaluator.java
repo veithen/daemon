@@ -25,6 +25,12 @@ import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluatio
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 
 public class NullExpressionEvaluator implements ExpressionEvaluator {
+    private final File basedir;
+
+    public NullExpressionEvaluator(File basedir) {
+        this.basedir = basedir;
+    }
+
     @Override
     public Object evaluate(String expression) throws ExpressionEvaluationException {
         return expression;
@@ -32,6 +38,6 @@ public class NullExpressionEvaluator implements ExpressionEvaluator {
 
     @Override
     public File alignToBaseDirectory(File path) {
-        return path;
+        return path.isAbsolute() ? path : new File(basedir, path.getPath());
     }
 }

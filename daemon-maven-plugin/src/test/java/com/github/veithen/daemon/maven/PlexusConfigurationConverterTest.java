@@ -21,6 +21,8 @@ package com.github.veithen.daemon.maven;
 
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 
+import java.io.File;
+
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.junit.jupiter.api.Test;
@@ -37,7 +39,7 @@ public class PlexusConfigurationConverterTest {
                                         PlexusConfigurationConverterTest.class.getResourceAsStream(
                                                 "sample_config.xml"),
                                         "utf-8")),
-                        new NullExpressionEvaluator(),
+                        new NullExpressionEvaluator(new File("/my/basedir")),
                         Configuration.getDescriptor());
         assertThat(message)
                 .isEqualTo(
@@ -47,6 +49,7 @@ public class PlexusConfigurationConverterTest {
                                 .addSomeRepeatedStrings("value1")
                                 .addSomeRepeatedStrings("value2")
                                 .setSomeMessage(SomeMessage.newBuilder().setValue("test").build())
+                                .setSomeFile("/my/basedir/src/test/foobar")
                                 .build());
     }
 }

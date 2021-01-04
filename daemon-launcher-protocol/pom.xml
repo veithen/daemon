@@ -53,9 +53,6 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        <configuration>
-                            <includeMavenTypes>transitive</includeMavenTypes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

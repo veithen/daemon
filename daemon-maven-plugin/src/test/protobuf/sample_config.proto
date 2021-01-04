@@ -3,6 +3,8 @@ syntax = "proto3";
 option java_package = "com.github.veithen.daemon.maven";
 option java_multiple_files = true;
 
+import "daemon/proto_options.proto";
+
 message SomeMessage {
     string value = 1;
 }
@@ -12,4 +14,5 @@ message Configuration {
     string some_string = 2;
     repeated string some_repeated_strings = 3;
     SomeMessage some_message = 4;
+    string some_file = 5 [(is_file) = true];
 }

@@ -3,7 +3,9 @@ syntax = "proto3";
 option java_package = "com.github.veithen.daemon.jetty";
 option java_multiple_files = true;
 
+import "daemon/proto_options.proto";
+
 message Configuration {
-    repeated string resource_bases = 1;
-    string request_log = 2;
+    repeated string resource_bases = 1 [(is_file) = true];
+    string request_log = 2 [(is_file) = true];
 }

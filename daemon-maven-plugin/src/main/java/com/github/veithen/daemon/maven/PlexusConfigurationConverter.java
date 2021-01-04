@@ -19,6 +19,7 @@
  */
 package com.github.veithen.daemon.maven;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluatio
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
+import com.github.veithen.daemon.ProtoOptions;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
@@ -48,6 +50,9 @@ final class PlexusConfigurationConverter {
         String value = evaluator.evaluate(config.getValue()).toString();
         switch (javaType) {
             case STRING:
+                if (field.getOptions().getExtension(ProtoOptions.isFile)) {
+                    return evaluator.alignToBaseDirectory(new File(value)).getAbsolutePath();
+                }
                 return value;
             case INT:
                 return Integer.valueOf(value);
