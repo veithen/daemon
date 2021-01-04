@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
+import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 import com.google.protobuf.Descriptors.Descriptor;
@@ -36,30 +38,37 @@ import com.google.protobuf.Message.Builder;
 final class PlexusConfigurationConverter {
     private PlexusConfigurationConverter() {}
 
-    private static Object convertFieldValue(PlexusConfiguration config, FieldDescriptor field) {
+    private static Object convertFieldValue(
+            PlexusConfiguration config, ExpressionEvaluator evaluator, FieldDescriptor field)
+            throws ExpressionEvaluationException {
         JavaType javaType = field.getJavaType();
+        if (javaType == JavaType.MESSAGE) {
+            return convert(config, evaluator, field.getMessageType());
+        }
+        String value = evaluator.evaluate(config.getValue()).toString();
         switch (javaType) {
             case STRING:
-                return config.getValue();
+                return value;
             case INT:
-                return Integer.valueOf(config.getValue());
-            case MESSAGE:
-                return convert(config, field.getMessageType());
+                return Integer.valueOf(value);
             default:
                 throw new UnsupportedOperationException("Unsupported field type " + javaType);
         }
     }
 
     private static List<Object> convertRepeatedFieldValues(
-            PlexusConfiguration config, FieldDescriptor field) {
+            PlexusConfiguration config, ExpressionEvaluator evaluator, FieldDescriptor field)
+            throws ExpressionEvaluationException {
         List<Object> values = new ArrayList<>(config.getChildCount());
         for (PlexusConfiguration child : config.getChildren()) {
-            values.add(convertFieldValue(child, field));
+            values.add(convertFieldValue(child, evaluator, field));
         }
         return values;
     }
 
-    public static Message convert(PlexusConfiguration config, Descriptor descriptor) {
+    public static Message convert(
+            PlexusConfiguration config, ExpressionEvaluator evaluator, Descriptor descriptor)
+            throws ExpressionEvaluationException {
         Builder message = DynamicMessage.newBuilder(descriptor);
         Map<String, FieldDescriptor> fieldMap = new HashMap<>();
         descriptor
@@ -74,9 +83,9 @@ final class PlexusConfigurationConverter {
                 throw new IllegalArgumentException("Unexpected field " + child.getName());
             }
             if (field.isRepeated()) {
-                message.setField(field, convertRepeatedFieldValues(child, field));
+                message.setField(field, convertRepeatedFieldValues(child, evaluator, field));
             } else {
-                message.setField(field, convertFieldValue(child, field));
+                message.setField(field, convertFieldValue(child, evaluator, field));
             }
         }
         return message.build();

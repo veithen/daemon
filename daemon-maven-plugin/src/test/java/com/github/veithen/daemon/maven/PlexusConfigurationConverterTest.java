@@ -37,6 +37,7 @@ public class PlexusConfigurationConverterTest {
                                         PlexusConfigurationConverterTest.class.getResourceAsStream(
                                                 "sample_config.xml"),
                                         "utf-8")),
+                        new NullExpressionEvaluator(),
                         Configuration.getDescriptor());
         assertThat(message)
                 .isEqualTo(
