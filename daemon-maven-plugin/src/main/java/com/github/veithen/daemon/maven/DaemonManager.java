@@ -20,6 +20,7 @@
 package com.github.veithen.daemon.maven;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.maven.execution.MavenSession;
 
@@ -31,6 +32,7 @@ public interface DaemonManager {
             File workDir,
             File[] classpath,
             String daemonClass,
+            List<String> testClassPath,
             String[] daemonArgs)
             throws Throwable;
 

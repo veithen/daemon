@@ -12,6 +12,7 @@ message Initialize {
 
 message Start {
     repeated string daemon_arg = 1;
+    repeated string test_classpath_entry = 2;
 }
 
 message Stop {}

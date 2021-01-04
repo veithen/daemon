@@ -37,6 +37,7 @@ import com.github.veithen.daemon.launcher.proto.Initialized;
 import com.github.veithen.daemon.launcher.proto.MessageReader;
 import com.github.veithen.daemon.launcher.proto.MessageWriter;
 import com.github.veithen.daemon.launcher.proto.Ready;
+import com.github.veithen.daemon.launcher.proto.Start;
 import com.github.veithen.daemon.launcher.proto.Stopped;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Message;
@@ -81,6 +82,19 @@ import com.google.protobuf.Message;
 public final class Launcher {
     private Launcher() {}
 
+    private static URL[] toURLs(List<String> classpathEntries) {
+        return classpathEntries.stream()
+                .map(
+                        s -> {
+                            try {
+                                return Paths.get(s).toUri().toURL();
+                            } catch (MalformedURLException ex) {
+                                throw new Error(ex);
+                            }
+                        })
+                .toArray(URL[]::new);
+    }
+
     public static void main(String[] args) {
         try {
             int controlPort = Integer.parseInt(args[0]);
@@ -95,17 +109,7 @@ public final class Launcher {
 
             Initialize initRequest = reader.read(RequestCase.INITIALIZE).getInitialize();
             URLClassLoader classLoader =
-                    new URLClassLoader(
-                            initRequest.getClasspathEntryList().stream()
-                                    .map(
-                                            s -> {
-                                                try {
-                                                    return Paths.get(s).toUri().toURL();
-                                                } catch (MalformedURLException ex) {
-                                                    throw new Error(ex);
-                                                }
-                                            })
-                                    .toArray(URL[]::new));
+                    new URLClassLoader(toURLs(initRequest.getClasspathEntryList()));
             Thread.currentThread().setContextClassLoader(classLoader);
             Daemon<?> daemon =
                     (Daemon<?>) classLoader.loadClass(initRequest.getDaemonClass()).newInstance();
@@ -121,8 +125,12 @@ public final class Launcher {
                                             .build())
                             .build());
 
-            List<String> daemonArgs = reader.read(RequestCase.START).getStart().getDaemonArgList();
-            daemon.init(new DaemonContextImpl(daemonArgs.toArray(new String[daemonArgs.size()])));
+            Start startRequest = reader.read(RequestCase.START).getStart();
+            List<String> daemonArgs = startRequest.getDaemonArgList();
+            daemon.init(
+                    new DaemonContextImpl(
+                            daemonArgs.toArray(new String[daemonArgs.size()]),
+                            toURLs(startRequest.getTestClasspathEntryList())));
             daemon.start();
             writer.write(DaemonResponse.newBuilder().setReady(Ready.getDefaultInstance()).build());
 

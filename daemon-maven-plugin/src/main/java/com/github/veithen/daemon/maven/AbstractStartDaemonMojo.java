@@ -246,6 +246,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
                             workDir,
                             classpath.toArray(new File[classpath.size()]),
                             daemonClass,
+                            project.getTestClasspathElements(),
                             args);
         } catch (Throwable ex) {
             throw new MojoFailureException("Failed to start server", ex);

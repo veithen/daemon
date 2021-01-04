@@ -99,6 +99,7 @@ public class DefaultDaemonManager implements DaemonManager {
             File workDir,
             File[] classpath,
             String daemonClass,
+            List<String> testClasspath,
             String[] daemonArgs)
             throws Throwable {
         // Locate java executable to use
@@ -129,6 +130,7 @@ public class DefaultDaemonManager implements DaemonManager {
                                 session, "com.github.veithen.daemon", "daemon-launcher", VERSION),
                         Arrays.asList(classpath),
                         daemonClass,
+                        testClasspath,
                         daemonArgs);
         daemons.add(daemon);
         daemon.startDaemon();

@@ -50,6 +50,7 @@ public class RemoteDaemon {
     private final List<File> launcherClasspath;
     private final List<File> daemonClasspath;
     private final String daemonClass;
+    private final List<String> testClasspath;
     private final String[] daemonArgs;
     private Process process;
     private Socket controlSocket;
@@ -65,6 +66,7 @@ public class RemoteDaemon {
             List<File> launcherClasspath,
             List<File> daemonClasspath,
             String daemonClass,
+            List<String> testClasspath,
             String[] daemonArgs) {
         this.logger = logger;
         this.jvm = jvm;
@@ -74,6 +76,7 @@ public class RemoteDaemon {
         this.launcherClasspath = launcherClasspath;
         this.daemonClasspath = daemonClasspath;
         this.daemonClass = daemonClass;
+        this.testClasspath = testClasspath;
         this.daemonArgs = daemonArgs;
     }
 
@@ -149,6 +152,7 @@ public class RemoteDaemon {
                 DaemonRequest.newBuilder()
                         .setStart(
                                 Start.newBuilder()
+                                        .addAllTestClasspathEntry(testClasspath)
                                         .addAllDaemonArg(Arrays.asList(daemonArgs))
                                         .build())
                         .build());

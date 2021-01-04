@@ -19,17 +19,26 @@
  */
 package com.github.veithen.daemon.launcher;
 
+import java.net.URL;
+
 import com.github.veithen.daemon.DaemonContext;
 
 final class DaemonContextImpl implements DaemonContext {
     private final String[] args;
+    private final URL[] testClasspath;
 
-    public DaemonContextImpl(String[] args) {
+    public DaemonContextImpl(String[] args, URL[] testClasspath) {
         this.args = args;
+        this.testClasspath = testClasspath;
     }
 
     @Override
     public String[] getArguments() {
         return args;
+    }
+
+    @Override
+    public URL[] getTestClasspath() {
+        return testClasspath;
     }
 }

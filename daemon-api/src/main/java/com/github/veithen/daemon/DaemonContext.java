@@ -19,6 +19,10 @@
  */
 package com.github.veithen.daemon;
 
+import java.net.URL;
+
 public interface DaemonContext {
     String[] getArguments();
+
+    URL[] getTestClasspath();
 }
