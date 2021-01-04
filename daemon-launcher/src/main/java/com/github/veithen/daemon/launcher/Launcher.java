@@ -67,8 +67,8 @@ import com.google.protobuf.Parser;
  *   <li>The child process opens the specified TCP port and waits for the control connection to be
  *       established.
  *   <li>The parent process connects to the control port.
- *   <li>The child process {@link Daemon#init(DaemonContext) initializes} and {@link Daemon#start()
- *       starts} the daemon.
+ *   <li>The child process {@link Daemon#init(Message, DaemonContext) initializes} and {@link
+ *       Daemon#start() starts} the daemon.
  *   <li>The child process sends a {@code READY} message over the control connection to the parent
  *       process.
  *   <li>When the parent process no longer needs the daemon, it sends a {@code STOP} message to the
