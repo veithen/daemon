@@ -52,7 +52,12 @@ public class WebAppDaemon implements Daemon<Configuration> {
                         new URLClassLoader(
                                 daemonContext.getTestClasspath(), getClass().getClassLoader()));
         WebAppContext context =
-                new WebAppContext(server, (Resource) null, "/") {
+                new WebAppContext(
+                        server,
+                        (Resource) null,
+                        configuration.getContextPath().isEmpty()
+                                ? "/"
+                                : configuration.getContextPath()) {
                     @Override
                     public boolean isServerClass(Class<?> clazz) {
                         // This allows the webapp to load servlets provided by Jetty, e.g.

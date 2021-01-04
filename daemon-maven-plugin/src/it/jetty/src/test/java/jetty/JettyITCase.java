@@ -33,7 +33,7 @@ public class JettyITCase {
         URL url =
                 new URL(
                         String.format(
-                                "http://localhost:%s/HelloWorld",
+                                "http://localhost:%s/foobar/HelloWorld",
                                 System.getProperty("jetty.httpPort")));
         try (BufferedReader in =
                 new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"))) {

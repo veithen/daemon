@@ -72,6 +72,7 @@
                                 <resourceBases>
                                     <resourceBase>src/test/webapp</resourceBase>
                                 </resourceBases>
+                                <contextPath>/foobar</contextPath>
                             </daemonConfiguration>
                             <argLine>@argLine@</argLine>
                         </configuration>

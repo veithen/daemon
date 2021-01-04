@@ -8,4 +8,5 @@ import "daemon/proto_options.proto";
 message Configuration {
     repeated string resource_bases = 1 [(is_file) = true];
     string request_log = 2 [(is_file) = true];
+    string context_path = 3;
 }
