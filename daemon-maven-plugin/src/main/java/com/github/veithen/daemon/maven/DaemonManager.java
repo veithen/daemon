@@ -28,7 +28,6 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 public interface DaemonManager {
     void startDaemon(
-            String description,
             MavenSession session,
             String[] vmArgs,
             File workDir,

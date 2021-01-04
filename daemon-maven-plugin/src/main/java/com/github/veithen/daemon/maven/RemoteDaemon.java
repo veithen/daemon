@@ -37,12 +37,12 @@ import org.codehaus.plexus.util.StringUtils;
 import com.github.veithen.daemon.launcher.proto.DaemonRequest;
 import com.github.veithen.daemon.launcher.proto.DaemonResponse;
 import com.github.veithen.daemon.launcher.proto.DaemonResponse.ResponseCase;
-import com.github.veithen.daemon.launcher.proto.Initialize;
-import com.github.veithen.daemon.launcher.proto.Initialized;
+import com.github.veithen.daemon.launcher.proto.InitRequest;
+import com.github.veithen.daemon.launcher.proto.InitResponse;
 import com.github.veithen.daemon.launcher.proto.MessageReader;
 import com.github.veithen.daemon.launcher.proto.MessageWriter;
-import com.github.veithen.daemon.launcher.proto.Start;
-import com.github.veithen.daemon.launcher.proto.Stop;
+import com.github.veithen.daemon.launcher.proto.StartRequest;
+import com.github.veithen.daemon.launcher.proto.StopRequest;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FileDescriptor;
 
@@ -51,7 +51,6 @@ public class RemoteDaemon {
     private final String jvm;
     private final String[] vmArgs;
     private final File workDir;
-    private final String description;
     private final List<File> launcherClasspath;
     private final List<File> daemonClasspath;
     private final List<String> testClasspath;
@@ -67,7 +66,6 @@ public class RemoteDaemon {
             String jvm,
             String[] vmArgs,
             File workDir,
-            String description,
             List<File> launcherClasspath,
             List<File> daemonClasspath,
             List<String> testClasspath,
@@ -77,7 +75,6 @@ public class RemoteDaemon {
         this.jvm = jvm;
         this.vmArgs = vmArgs;
         this.workDir = workDir;
-        this.description = description;
         this.launcherClasspath = launcherClasspath;
         this.daemonClasspath = daemonClasspath;
         this.testClasspath = testClasspath;
@@ -87,10 +84,6 @@ public class RemoteDaemon {
 
     public Process getProcess() {
         return process;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public void startDaemon() throws Throwable {
@@ -142,8 +135,8 @@ public class RemoteDaemon {
 
         controlWriter.write(
                 DaemonRequest.newBuilder()
-                        .setInitialize(
-                                Initialize.newBuilder()
+                        .setInit(
+                                InitRequest.newBuilder()
                                         .addAllClasspathEntry(
                                                 daemonClasspath.stream()
                                                         .map(File::toString)
@@ -151,7 +144,7 @@ public class RemoteDaemon {
                                         .build())
                         .build());
         logger.debug("Awaiting initialization");
-        Initialized initResponse = controlReader.read(ResponseCase.INITIALIZED).getInitialized();
+        InitResponse initResponse = controlReader.read(ResponseCase.INIT).getInit();
         Descriptor descriptor =
                 FileDescriptor.buildFrom(initResponse.getFileDescriptor(), new FileDescriptor[0])
                         .findMessageTypeByName(initResponse.getConfigurationType());
@@ -161,7 +154,7 @@ public class RemoteDaemon {
         controlWriter.write(
                 DaemonRequest.newBuilder()
                         .setStart(
-                                Start.newBuilder()
+                                StartRequest.newBuilder()
                                         .setConfiguration(
                                                 PlexusConfigurationConverter.convert(
                                                                 configuration,
@@ -172,13 +165,14 @@ public class RemoteDaemon {
                                         .build())
                         .build());
         logger.debug("Waiting for daemon to become ready");
-        controlReader.read(ResponseCase.READY);
+        controlReader.read(ResponseCase.START);
         logger.debug("Daemon is ready");
     }
 
     public void stopDaemon() throws Throwable {
-        controlWriter.write(DaemonRequest.newBuilder().setStop(Stop.getDefaultInstance()).build());
-        controlReader.read(ResponseCase.STOPPED);
+        controlWriter.write(
+                DaemonRequest.newBuilder().setStop(StopRequest.getDefaultInstance()).build());
+        controlReader.read(ResponseCase.STOP);
         controlSocket.close();
     }
 }

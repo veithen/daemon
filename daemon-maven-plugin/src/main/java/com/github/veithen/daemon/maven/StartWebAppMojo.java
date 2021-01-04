@@ -45,7 +45,6 @@ public class StartWebAppMojo extends AbstractStartWebServerMojo {
         daemonArtifact.setGroupId("com.github.veithen.daemon");
         daemonArtifact.setArtifactId("jetty-daemon");
         daemonArtifact.setVersion(pluginVersion);
-        startDaemon(
-                "HTTP server on port " + port, daemonArtifact, webappConfiguration, new File("."));
+        startDaemon(daemonArtifact, webappConfiguration, new File("."));
     }
 }

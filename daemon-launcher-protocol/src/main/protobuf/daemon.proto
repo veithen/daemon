@@ -5,38 +5,38 @@ option java_multiple_files = true;
 
 import "google/protobuf/descriptor.proto";
 
-message Initialize {
+message InitRequest {
     repeated string classpath_entry = 1;
 }
 
-message Start {
-    bytes configuration = 1;
-    repeated string test_classpath_entry = 2;
-}
-
-message Stop {}
-
-message DaemonRequest {
-    oneof request {
-        Initialize initialize = 1;
-        Start start = 2;
-        Stop stop = 3;
-    }
-}
-
-message Initialized {
+message InitResponse {
     string configuration_type = 1;
     google.protobuf.FileDescriptorProto file_descriptor = 2;
 }
 
-message Ready {}
+message StartRequest {
+    bytes configuration = 1;
+    repeated string test_classpath_entry = 2;
+}
 
-message Stopped {}
+message StartResponse {}
+
+message StopRequest {}
+
+message StopResponse {}
+
+message DaemonRequest {
+    oneof request {
+        InitRequest init = 1;
+        StartRequest start = 2;
+        StopRequest stop = 3;
+    }
+}
 
 message DaemonResponse {
     oneof response {
-        Initialized initialized = 1;
-        Ready ready = 2;
-        Stopped stopped = 3;
+        InitResponse init = 1;
+        StartResponse start = 2;
+        StopResponse stop = 3;
     }
 }

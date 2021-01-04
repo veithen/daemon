@@ -100,7 +100,6 @@ public class DefaultDaemonManager implements DaemonManager {
 
     @Override
     public void startDaemon(
-            String description,
             MavenSession session,
             String[] vmArgs,
             File workDir,
@@ -132,7 +131,6 @@ public class DefaultDaemonManager implements DaemonManager {
                         jvm,
                         vmArgs,
                         workDir,
-                        description,
                         getClassPathForArtifact(
                                 session,
                                 "com.github.veithen.daemon",
@@ -157,7 +155,7 @@ public class DefaultDaemonManager implements DaemonManager {
         Throwable savedException = null;
         for (RemoteDaemon daemon : daemons) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Stopping " + daemon.getDescription());
+                logger.debug("Stopping deamon");
             }
             boolean success;
             try {
@@ -177,7 +175,7 @@ public class DefaultDaemonManager implements DaemonManager {
             } else {
                 daemon.getProcess().destroy();
             }
-            logger.info(daemon.getDescription() + " stopped");
+            logger.info("Daemon stopped");
         }
         // TODO: need to clear the collection because the same ServerManager instance may be used by
         // multiple projects in a reactor build;

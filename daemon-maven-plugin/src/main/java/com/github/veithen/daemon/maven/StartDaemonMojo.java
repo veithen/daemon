@@ -47,6 +47,6 @@ public class StartDaemonMojo extends AbstractStartDaemonMojo {
 
     protected void doStartDaemon() throws MojoExecutionException, MojoFailureException {
         workDir.mkdirs();
-        startDaemon(/* TODO */ "Daemon", daemonArtifact, daemonConfiguration, workDir);
+        startDaemon(daemonArtifact, daemonConfiguration, workDir);
     }
 }

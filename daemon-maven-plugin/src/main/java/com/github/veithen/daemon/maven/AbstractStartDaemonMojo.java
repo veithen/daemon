@@ -82,10 +82,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
     @Component private MojoExecution mojoExecution;
 
     protected final void startDaemon(
-            String description,
-            DaemonArtifact daemonArtifact,
-            PlexusConfiguration configuration,
-            File workDir)
+            DaemonArtifact daemonArtifact, PlexusConfiguration configuration, File workDir)
             throws MojoExecutionException, MojoFailureException {
         Log log = getLog();
 
@@ -107,7 +104,6 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
         try {
             getDaemonManager()
                     .startDaemon(
-                            description,
                             session,
                             vmArgs.toArray(new String[vmArgs.size()]),
                             workDir,

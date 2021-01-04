@@ -34,13 +34,13 @@ import com.github.veithen.daemon.DaemonContext;
 import com.github.veithen.daemon.launcher.proto.DaemonRequest;
 import com.github.veithen.daemon.launcher.proto.DaemonRequest.RequestCase;
 import com.github.veithen.daemon.launcher.proto.DaemonResponse;
-import com.github.veithen.daemon.launcher.proto.Initialize;
-import com.github.veithen.daemon.launcher.proto.Initialized;
+import com.github.veithen.daemon.launcher.proto.InitRequest;
+import com.github.veithen.daemon.launcher.proto.InitResponse;
 import com.github.veithen.daemon.launcher.proto.MessageReader;
 import com.github.veithen.daemon.launcher.proto.MessageWriter;
-import com.github.veithen.daemon.launcher.proto.Ready;
-import com.github.veithen.daemon.launcher.proto.Start;
-import com.github.veithen.daemon.launcher.proto.Stopped;
+import com.github.veithen.daemon.launcher.proto.StartRequest;
+import com.github.veithen.daemon.launcher.proto.StartResponse;
+import com.github.veithen.daemon.launcher.proto.StopResponse;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
@@ -115,7 +115,7 @@ public final class Launcher {
             MessageWriter<DaemonResponse> writer =
                     new MessageWriter<>(controlSocket.getOutputStream());
 
-            Initialize initRequest = reader.read(RequestCase.INITIALIZE).getInitialize();
+            InitRequest initRequest = reader.read(RequestCase.INIT).getInit();
             URLClassLoader classLoader =
                     new URLClassLoader(toURLs(initRequest.getClasspathEntryList()));
             Thread.currentThread().setContextClassLoader(classLoader);
@@ -132,27 +132,30 @@ public final class Launcher {
                     (Descriptor) configurationType.getMethod("getDescriptor").invoke(null);
             writer.write(
                     DaemonResponse.newBuilder()
-                            .setInitialized(
-                                    Initialized.newBuilder()
+                            .setInit(
+                                    InitResponse.newBuilder()
                                             .setConfigurationType(descriptor.getFullName())
                                             .setFileDescriptor(descriptor.getFile().toProto())
                                             .build())
                             .build());
 
-            Start startRequest = reader.read(RequestCase.START).getStart();
+            StartRequest startRequest = reader.read(RequestCase.START).getStart();
             initDaemon(
                     daemon,
                     ((Parser<?>) configurationType.getMethod("parser").invoke(null))
                             .parseFrom(startRequest.getConfiguration()),
                     new DaemonContextImpl(toURLs(startRequest.getTestClasspathEntryList())));
             daemon.start();
-            writer.write(DaemonResponse.newBuilder().setReady(Ready.getDefaultInstance()).build());
+            writer.write(
+                    DaemonResponse.newBuilder()
+                            .setStart(StartResponse.getDefaultInstance())
+                            .build());
 
             reader.read(RequestCase.STOP);
             daemon.stop();
             daemon.destroy();
             writer.write(
-                    DaemonResponse.newBuilder().setStopped(Stopped.getDefaultInstance()).build());
+                    DaemonResponse.newBuilder().setStop(StopResponse.getDefaultInstance()).build());
             System.exit(0);
         } catch (Throwable ex) {
             ex.printStackTrace();
