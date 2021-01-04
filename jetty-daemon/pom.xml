@@ -40,6 +40,10 @@
         <tag>HEAD</tag>
     </scm>
 
+    <properties>
+        <jetty.version>9.4.35.v20201120</jetty.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -49,7 +53,12 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>9.4.35.v20201120</version>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>apache-jsp</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
 
         <!-- Ensure that daemon-maven-plugin is built before this project. -->

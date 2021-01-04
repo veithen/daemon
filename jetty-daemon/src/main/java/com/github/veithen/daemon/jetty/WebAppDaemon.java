@@ -25,8 +25,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -76,6 +78,18 @@ public class WebAppDaemon implements Daemon<Configuration> {
             context.setBaseResource(
                     new ResourceCollection(resources.toArray(new Resource[resources.size()])));
         }
+        context.addBean(
+                new AbstractLifeCycle() {
+                    @Override
+                    public void doStop() throws Exception {}
+
+                    @Override
+                    public void doStart() throws Exception {
+                        JettyJasperInitializer jspInit = new JettyJasperInitializer();
+                        jspInit.onStartup(Collections.emptySet(), context.getServletContext());
+                    }
+                },
+                true);
 
         String requestLog = configuration.getRequestLog();
         if (!requestLog.isEmpty()) {

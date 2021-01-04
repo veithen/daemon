@@ -40,4 +40,21 @@ public class JettyITCase {
             assertEquals("Hello world!", in.readLine());
         }
     }
+
+    @Test
+    public void testJsp() throws Exception {
+        URL url =
+                new URL(
+                        String.format(
+                                "http://localhost:%s/foobar/test.jsp",
+                                System.getProperty("jetty.httpPort")));
+        try (BufferedReader in =
+                new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"))) {
+            String line;
+            while ((line = in.readLine()).isEmpty()) {
+                // Just loop
+            }
+            assertEquals("Test", line);
+        }
+    }
 }
