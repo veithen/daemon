@@ -21,20 +21,22 @@ package com.github.veithen.daemon.maven;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 public interface DaemonManager {
-    void startDaemon(
+    Map<String, Integer> startDaemon(
             MavenSession session,
             String[] vmArgs,
             File workDir,
             DaemonArtifact daemonArtifact,
-            List<String> testClassPath,
+            List<String> testClasspath,
             PlexusConfiguration configuration,
-            ExpressionEvaluator expressionEvaluator)
+            ExpressionEvaluator expressionEvaluator,
+            Map<String, Integer> ports)
             throws Throwable;
 
     void stopAll() throws Throwable;

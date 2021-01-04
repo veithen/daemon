@@ -17,29 +17,34 @@
  * limitations under the License.
  * #L%
  */
-package com.github.veithen.daemon.launcher;
+package com.github.veithen.daemon.maven;
 
-import java.net.URL;
-import java.util.Map;
+public class Port {
+    private String name;
+    private String propertyName;
+    private int foreground;
 
-import com.github.veithen.daemon.DaemonContext;
-
-final class DaemonContextImpl implements DaemonContext {
-    private final URL[] testClasspath;
-    private final Map<String, Integer> ports;
-
-    public DaemonContextImpl(URL[] testClasspath, Map<String, Integer> ports) {
-        this.testClasspath = testClasspath;
-        this.ports = ports;
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public URL[] getTestClasspath() {
-        return testClasspath;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    @Override
-    public int getPort(String name) {
-        return ports.getOrDefault(name, 0);
+    public String getPropertyName() {
+        return propertyName;
+    }
+
+    public void setPropertyName(String propertyName) {
+        this.propertyName = propertyName;
+    }
+
+    public int getForeground() {
+        return foreground;
+    }
+
+    public void setForeground(int foreground) {
+        this.foreground = foreground;
     }
 }

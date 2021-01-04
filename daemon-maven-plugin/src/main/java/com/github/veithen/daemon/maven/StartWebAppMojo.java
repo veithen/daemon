@@ -33,14 +33,15 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
         name = "start-webapp",
         defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST,
         requiresDependencyResolution = ResolutionScope.TEST)
-public class StartWebAppMojo extends AbstractStartWebServerMojo {
+public class StartWebAppMojo extends AbstractStartDaemonMojo {
     @Parameter(required = true)
     private PlexusConfiguration webappConfiguration;
 
     @Parameter(property = "plugin.version", required = true, readonly = true)
     private String pluginVersion;
 
-    protected void doStartDaemon(int port) throws MojoExecutionException, MojoFailureException {
+    @Override
+    protected void doStartDaemon() throws MojoExecutionException, MojoFailureException {
         DaemonArtifact daemonArtifact = new DaemonArtifact();
         daemonArtifact.setGroupId("com.github.veithen.daemon");
         daemonArtifact.setArtifactId("jetty-daemon");

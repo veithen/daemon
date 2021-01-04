@@ -23,4 +23,6 @@ import java.net.URL;
 
 public interface DaemonContext {
     URL[] getTestClasspath();
+
+    int getPort(String name);
 }

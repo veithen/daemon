@@ -4,7 +4,6 @@ option java_package = "com.github.veithen.daemon.jetty";
 option java_multiple_files = true;
 
 message Configuration {
-    uint32 port = 1;
-    repeated string resource_bases = 2;
-    string request_log = 3;
+    repeated string resource_bases = 1;
+    string request_log = 2;
 }

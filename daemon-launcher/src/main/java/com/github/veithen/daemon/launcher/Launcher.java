@@ -27,6 +27,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 
 import com.github.veithen.daemon.Daemon;
@@ -144,11 +145,13 @@ public final class Launcher {
                     daemon,
                     ((Parser<?>) configurationType.getMethod("parser").invoke(null))
                             .parseFrom(startRequest.getConfiguration()),
-                    new DaemonContextImpl(toURLs(startRequest.getTestClasspathEntryList())));
-            daemon.start();
+                    new DaemonContextImpl(
+                            toURLs(startRequest.getTestClasspathEntryList()),
+                            startRequest.getPortsMap()));
+            Map<String, Integer> ports = daemon.start();
             writer.write(
                     DaemonResponse.newBuilder()
-                            .setStart(StartResponse.getDefaultInstance())
+                            .setStart(StartResponse.newBuilder().putAllPorts(ports))
                             .build());
 
             reader.read(RequestCase.STOP);

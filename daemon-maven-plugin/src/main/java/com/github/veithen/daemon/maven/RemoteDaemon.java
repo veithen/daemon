@@ -27,6 +27,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
@@ -42,6 +43,7 @@ import com.github.veithen.daemon.launcher.proto.InitResponse;
 import com.github.veithen.daemon.launcher.proto.MessageReader;
 import com.github.veithen.daemon.launcher.proto.MessageWriter;
 import com.github.veithen.daemon.launcher.proto.StartRequest;
+import com.github.veithen.daemon.launcher.proto.StartResponse;
 import com.github.veithen.daemon.launcher.proto.StopRequest;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FileDescriptor;
@@ -56,6 +58,7 @@ public class RemoteDaemon {
     private final List<String> testClasspath;
     private final PlexusConfiguration configuration;
     private final ExpressionEvaluator expressionEvaluator;
+    private final Map<String, Integer> ports;
     private Process process;
     private Socket controlSocket;
     private MessageWriter<DaemonRequest> controlWriter;
@@ -70,7 +73,8 @@ public class RemoteDaemon {
             List<File> daemonClasspath,
             List<String> testClasspath,
             PlexusConfiguration plexusConfiguration,
-            ExpressionEvaluator expressionEvaluator) {
+            ExpressionEvaluator expressionEvaluator,
+            Map<String, Integer> ports) {
         this.logger = logger;
         this.jvm = jvm;
         this.vmArgs = vmArgs;
@@ -80,13 +84,14 @@ public class RemoteDaemon {
         this.testClasspath = testClasspath;
         this.configuration = plexusConfiguration;
         this.expressionEvaluator = expressionEvaluator;
+        this.ports = ports;
     }
 
     public Process getProcess() {
         return process;
     }
 
-    public void startDaemon() throws Throwable {
+    public Map<String, Integer> startDaemon() throws Throwable {
         ServerSocket controlServerSocket = new ServerSocket(0, 1, InetAddress.getLoopbackAddress());
         try {
             controlServerSocket.setSoTimeout(100);
@@ -162,11 +167,13 @@ public class RemoteDaemon {
                                                                 descriptor)
                                                         .toByteString())
                                         .addAllTestClasspathEntry(testClasspath)
+                                        .putAllPorts(ports)
                                         .build())
                         .build());
         logger.debug("Waiting for daemon to become ready");
-        controlReader.read(ResponseCase.START);
+        StartResponse startResponse = controlReader.read(ResponseCase.START).getStart();
         logger.debug("Daemon is ready");
+        return startResponse.getPortsMap();
     }
 
     public void stopDaemon() throws Throwable {

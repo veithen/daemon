@@ -19,6 +19,8 @@
  */
 package com.github.veithen.daemon;
 
+import java.util.Map;
+
 import com.google.protobuf.Message;
 
 public interface Daemon<T extends Message> {
@@ -26,7 +28,7 @@ public interface Daemon<T extends Message> {
 
     void init(T configuration, DaemonContext context) throws Exception;
 
-    void start() throws Exception;
+    Map<String, Integer> start() throws Exception;
 
     void stop() throws Exception;
 

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -99,14 +100,15 @@ public class DefaultDaemonManager implements DaemonManager {
     }
 
     @Override
-    public void startDaemon(
+    public Map<String, Integer> startDaemon(
             MavenSession session,
             String[] vmArgs,
             File workDir,
             DaemonArtifact daemonArtifact,
             List<String> testClasspath,
             PlexusConfiguration configuration,
-            ExpressionEvaluator expressionEvaluator)
+            ExpressionEvaluator expressionEvaluator,
+            Map<String, Integer> ports)
             throws Throwable {
         // Locate java executable to use
         String jvm;
@@ -145,9 +147,10 @@ public class DefaultDaemonManager implements DaemonManager {
                                 MavenProject::getRemoteArtifactRepositories),
                         testClasspath,
                         configuration,
-                        expressionEvaluator);
+                        expressionEvaluator,
+                        ports);
         daemons.add(daemon);
-        daemon.startDaemon();
+        return daemon.startDaemon();
     }
 
     @Override

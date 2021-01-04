@@ -22,7 +22,9 @@ package com.github.veithen.daemon.maven;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
@@ -79,6 +81,19 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
     @Parameter(property = "argLine")
     private String argLine;
 
+    @Parameter private Port[] ports;
+
+    /**
+     * If this flag is set to <code>true</code>, then the execution of the goal will block after the
+     * server has been started. This is useful if one wants to manually test some services deployed
+     * on the server or if one wants to run the integration tests from an IDE. The flag should only
+     * be set using the command line, but not in the POM.
+     */
+    // Note: this feature is implemented using a flag (instead of a distinct goal) to make sure that
+    // the server is configured in exactly the same way as in a normal integration test execution.
+    @Parameter(property = "axis.server.foreground", defaultValue = "false")
+    private boolean foreground;
+
     @Component private MojoExecution mojoExecution;
 
     protected final void startDaemon(
@@ -101,18 +116,57 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
             log.debug("Additional VM args: " + vmArgs);
         }
 
+        Map<String, Integer> portsIn = new HashMap<>();
+        if (foreground) {
+            for (Port port : ports) {
+                if (port.getForeground() != 0) {
+                    portsIn.put(port.getName(), port.getForeground());
+                }
+            }
+        }
+
+        Map<String, Integer> portsOut;
         try {
-            getDaemonManager()
-                    .startDaemon(
-                            session,
-                            vmArgs.toArray(new String[vmArgs.size()]),
-                            workDir,
-                            daemonArtifact,
-                            project.getTestClasspathElements(),
-                            configuration,
-                            new PluginParameterExpressionEvaluator(session, mojoExecution));
+            portsOut =
+                    getDaemonManager()
+                            .startDaemon(
+                                    session,
+                                    vmArgs.toArray(new String[vmArgs.size()]),
+                                    workDir,
+                                    daemonArtifact,
+                                    project.getTestClasspathElements(),
+                                    configuration,
+                                    new PluginParameterExpressionEvaluator(session, mojoExecution),
+                                    portsIn);
         } catch (Throwable ex) {
             throw new MojoFailureException("Failed to start server", ex);
+        }
+
+        for (Port port : ports) {
+            int portNumber = portsOut.getOrDefault(port.getName(), -1);
+            if (portNumber == -1) {
+                throw new MojoFailureException("Unknown port " + port.getName());
+            }
+            if (foreground && port.getForeground() != 0 && portNumber != port.getForeground()) {
+                throw new MojoFailureException(
+                        "Daemon failed to allocate the expected port number for port "
+                                + port.getName());
+            }
+            project.getProperties()
+                    .setProperty(port.getPropertyName(), Integer.toString(portNumber));
+        }
+
+        if (foreground) {
+            log.info("Server started in foreground mode. Press CRTL-C to stop.");
+            Object lock = new Object();
+            synchronized (lock) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException ex) {
+                    // Set interrupt flag and continue
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
     }
 

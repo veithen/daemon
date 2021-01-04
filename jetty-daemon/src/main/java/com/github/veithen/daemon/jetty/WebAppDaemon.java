@@ -20,6 +20,8 @@
 package com.github.veithen.daemon.jetty;
 
 import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.Map;
 
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
@@ -32,6 +34,8 @@ import com.github.veithen.daemon.DaemonContext;
 
 /** @author Andreas Veithen */
 public class WebAppDaemon implements Daemon<Configuration> {
+    private static final String HTTP_PORT_NAME = "http";
+
     private Server server;
 
     @Override
@@ -41,7 +45,7 @@ public class WebAppDaemon implements Daemon<Configuration> {
 
     @Override
     public void init(Configuration configuration, DaemonContext daemonContext) throws Exception {
-        server = new Server(configuration.getPort());
+        server = new Server(daemonContext.getPort(HTTP_PORT_NAME));
 
         Thread.currentThread()
                 .setContextClassLoader(
@@ -71,8 +75,9 @@ public class WebAppDaemon implements Daemon<Configuration> {
     }
 
     @Override
-    public void start() throws Exception {
+    public Map<String, Integer> start() throws Exception {
         server.start();
+        return Collections.singletonMap(HTTP_PORT_NAME, server.getURI().getPort());
     }
 
     @Override

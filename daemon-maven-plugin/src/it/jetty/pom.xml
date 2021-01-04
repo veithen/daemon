@@ -49,25 +49,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <id>reserve-network-port</id>
-                        <goals>
-                            <goal>reserve-network-port</goal>
-                        </goals>
-                        <phase>pre-integration-test</phase>
-                        <configuration>
-                            <portNames>
-                                <portName>jetty.httpPort</portName>
-                            </portNames>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>@project.groupId@</groupId>
                 <artifactId>@project.artifactId@</artifactId>
                 <version>@project.version@</version>
@@ -78,8 +59,13 @@
                             <goal>start-webapp</goal>
                         </goals>
                         <configuration>
+                            <ports>
+                                <port>
+                                    <name>http</name>
+                                    <propertyName>jetty.httpPort</propertyName>
+                                </port>
+                            </ports>
                             <webappConfiguration>
-                                <port>${jetty.httpPort}</port>
                                 <resourceBases>
                                     <resourceBase>src/test/webapp</resourceBase>
                                 </resourceBases>

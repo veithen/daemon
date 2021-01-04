@@ -17,9 +17,12 @@ message InitResponse {
 message StartRequest {
     bytes configuration = 1;
     repeated string test_classpath_entry = 2;
+    map<string, uint32> ports = 3;
 }
 
-message StartResponse {}
+message StartResponse {
+    map<string, uint32> ports = 1;
+}
 
 message StopRequest {}
 
