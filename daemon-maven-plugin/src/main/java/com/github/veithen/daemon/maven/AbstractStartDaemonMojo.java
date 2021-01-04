@@ -94,10 +94,14 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
     @Parameter(property = "axis.server.foreground", defaultValue = "false")
     private boolean foreground;
 
+    /** The working directory for the process. */
+    @Parameter(defaultValue = "${project.build.directory}/work", required = true)
+    private File workDir;
+
     @Component private MojoExecution mojoExecution;
 
     protected final void startDaemon(
-            DaemonArtifact daemonArtifact, PlexusConfiguration configuration, File workDir)
+            DaemonArtifact daemonArtifact, PlexusConfiguration configuration)
             throws MojoExecutionException, MojoFailureException {
         Log log = getLog();
 
@@ -125,6 +129,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo 
             }
         }
 
+        workDir.mkdirs();
         Map<String, Integer> portsOut;
         try {
             portsOut =

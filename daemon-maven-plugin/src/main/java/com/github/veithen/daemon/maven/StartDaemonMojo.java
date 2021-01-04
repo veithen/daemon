@@ -19,8 +19,6 @@
  */
 package com.github.veithen.daemon.maven;
 
-import java.io.File;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -41,12 +39,7 @@ public class StartDaemonMojo extends AbstractStartDaemonMojo {
     @Parameter(required = true)
     private PlexusConfiguration daemonConfiguration;
 
-    /** The working directory for the process. */
-    @Parameter(defaultValue = "${project.build.directory}/work", required = true)
-    private File workDir;
-
     protected void doStartDaemon() throws MojoExecutionException, MojoFailureException {
-        workDir.mkdirs();
-        startDaemon(daemonArtifact, daemonConfiguration, workDir);
+        startDaemon(daemonArtifact, daemonConfiguration);
     }
 }
