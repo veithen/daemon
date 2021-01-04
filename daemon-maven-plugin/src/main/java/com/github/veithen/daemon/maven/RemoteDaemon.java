@@ -49,7 +49,6 @@ public class RemoteDaemon {
     private final String description;
     private final List<File> launcherClasspath;
     private final List<File> daemonClasspath;
-    private final String daemonClass;
     private final List<String> testClasspath;
     private final String[] daemonArgs;
     private Process process;
@@ -65,7 +64,6 @@ public class RemoteDaemon {
             String description,
             List<File> launcherClasspath,
             List<File> daemonClasspath,
-            String daemonClass,
             List<String> testClasspath,
             String[] daemonArgs) {
         this.logger = logger;
@@ -75,7 +73,6 @@ public class RemoteDaemon {
         this.description = description;
         this.launcherClasspath = launcherClasspath;
         this.daemonClasspath = daemonClasspath;
-        this.daemonClass = daemonClass;
         this.testClasspath = testClasspath;
         this.daemonArgs = daemonArgs;
     }
@@ -143,7 +140,6 @@ public class RemoteDaemon {
                                                 daemonClasspath.stream()
                                                         .map(File::toString)
                                                         .collect(Collectors.toList()))
-                                        .setDaemonClass(daemonClass)
                                         .build())
                         .build());
         logger.debug("Awaiting initialization");

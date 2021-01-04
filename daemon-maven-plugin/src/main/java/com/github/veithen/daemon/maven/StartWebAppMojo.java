@@ -57,7 +57,6 @@ public class StartWebAppMojo extends AbstractStartWebServerMojo {
         }
         startDaemon(
                 "HTTP server on port " + port,
-                "com.github.veithen.daemon.jetty.WebAppDaemon",
                 args.toArray(new String[args.size()]),
                 new File("."));
     }

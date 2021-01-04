@@ -31,7 +31,6 @@ public interface DaemonManager {
             String[] vmArgs,
             File workDir,
             File[] classpath,
-            String daemonClass,
             List<String> testClassPath,
             String[] daemonArgs)
             throws Throwable;

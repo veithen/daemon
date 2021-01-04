@@ -34,10 +34,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
         defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST,
         requiresDependencyResolution = ResolutionScope.TEST)
 public class StartDaemonMojo extends AbstractStartDaemonMojo {
-    /** The daemon class. */
-    @Parameter(required = true)
-    private String daemonClass;
-
     /** The arguments to be passed to the main class. */
     @Parameter private String[] args;
 
@@ -47,6 +43,6 @@ public class StartDaemonMojo extends AbstractStartDaemonMojo {
 
     protected void doStartDaemon() throws MojoExecutionException, MojoFailureException {
         workDir.mkdirs();
-        startDaemon(daemonClass, daemonClass, args, workDir);
+        startDaemon(/* TODO */ "Daemon", args, workDir);
     }
 }

@@ -7,7 +7,6 @@ import "google/protobuf/descriptor.proto";
 
 message Initialize {
     repeated string classpath_entry = 1;
-    string daemon_class = 2;
 }
 
 message Start {

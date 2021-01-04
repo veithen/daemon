@@ -98,7 +98,6 @@ public class DefaultDaemonManager implements DaemonManager {
             String[] vmArgs,
             File workDir,
             File[] classpath,
-            String daemonClass,
             List<String> testClasspath,
             String[] daemonArgs)
             throws Throwable {
@@ -129,7 +128,6 @@ public class DefaultDaemonManager implements DaemonManager {
                         getClassPathForArtifact(
                                 session, "com.github.veithen.daemon", "daemon-launcher", VERSION),
                         Arrays.asList(classpath),
-                        daemonClass,
                         testClasspath,
                         daemonArgs);
         daemons.add(daemon);

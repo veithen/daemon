@@ -25,7 +25,9 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import com.github.veithen.daemon.Daemon;
 import com.github.veithen.daemon.DaemonContext;
@@ -111,8 +113,14 @@ public final class Launcher {
             URLClassLoader classLoader =
                     new URLClassLoader(toURLs(initRequest.getClasspathEntryList()));
             Thread.currentThread().setContextClassLoader(classLoader);
-            Daemon<?> daemon =
-                    (Daemon<?>) classLoader.loadClass(initRequest.getDaemonClass()).newInstance();
+            Iterator<Daemon> it = ServiceLoader.load(Daemon.class, classLoader).iterator();
+            if (!it.hasNext()) {
+                throw new LauncherException("Daemon class not found");
+            }
+            Daemon<?> daemon = it.next();
+            if (it.hasNext()) {
+                throw new LauncherException("More than one daemon class found");
+            }
             Class<? extends Message> configurationType = daemon.getConfigurationType();
             Descriptor descriptor =
                     (Descriptor) configurationType.getMethod("getDescriptor").invoke(null);

@@ -206,8 +206,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
         return classpath;
     }
 
-    protected final void startDaemon(
-            String description, String daemonClass, String[] args, File workDir)
+    protected final void startDaemon(String description, String[] args, File workDir)
             throws MojoExecutionException, MojoFailureException {
         Log log = getLog();
 
@@ -245,7 +244,6 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
                             vmArgs.toArray(new String[vmArgs.size()]),
                             workDir,
                             classpath.toArray(new File[classpath.size()]),
-                            daemonClass,
                             project.getTestClasspathElements(),
                             args);
         } catch (Throwable ex) {
