@@ -50,6 +50,8 @@ public class PlexusConfigurationConverterTest {
                                 .addSomeRepeatedStrings("value2")
                                 .setSomeMessage(SomeMessage.newBuilder().setValue("test").build())
                                 .setSomeFile("/my/basedir/src/test/foobar")
+                                .putSomeMap("key1", true)
+                                .putSomeMap("key2", false)
                                 .build());
     }
 }

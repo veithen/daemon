@@ -56,6 +56,8 @@ final class PlexusConfigurationConverter {
                 return value;
             case INT:
                 return Integer.valueOf(value);
+            case BOOLEAN:
+                return Boolean.valueOf(value);
             default:
                 throw new UnsupportedOperationException("Unsupported field type " + javaType);
         }
@@ -67,6 +69,21 @@ final class PlexusConfigurationConverter {
         List<Object> values = new ArrayList<>(config.getChildCount());
         for (PlexusConfiguration child : config.getChildren()) {
             values.add(convertFieldValue(child, evaluator, field));
+        }
+        return values;
+    }
+
+    private static List<Message> convertMapFieldValues(
+            PlexusConfiguration config, ExpressionEvaluator evaluator, FieldDescriptor field)
+            throws ExpressionEvaluationException {
+        List<Message> values = new ArrayList<>(config.getChildCount());
+        for (PlexusConfiguration child : config.getChildren()) {
+            Descriptor descriptor = field.getMessageType();
+            Builder message = DynamicMessage.newBuilder(descriptor);
+            message.setField(descriptor.findFieldByNumber(1), child.getName());
+            FieldDescriptor valueField = descriptor.findFieldByNumber(2);
+            message.setField(valueField, convertFieldValue(child, evaluator, valueField));
+            values.add(message.build());
         }
         return values;
     }
@@ -87,7 +104,9 @@ final class PlexusConfigurationConverter {
             if (field == null) {
                 throw new IllegalArgumentException("Unexpected field " + child.getName());
             }
-            if (field.isRepeated()) {
+            if (field.isMapField()) {
+                message.setField(field, convertMapFieldValues(child, evaluator, field));
+            } else if (field.isRepeated()) {
                 message.setField(field, convertRepeatedFieldValues(child, evaluator, field));
             } else {
                 message.setField(field, convertFieldValue(child, evaluator, field));

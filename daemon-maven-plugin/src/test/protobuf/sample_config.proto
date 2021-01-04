@@ -15,4 +15,5 @@ message Configuration {
     repeated string some_repeated_strings = 3;
     SomeMessage some_message = 4;
     string some_file = 5 [(is_file) = true];
+    map<string, bool> some_map = 6;
 }

@@ -27,4 +27,8 @@
         <value>test</value>
     </someMessage>
     <someFile>src/test/foobar</someFile>
+    <someMap>
+        <key1>true</key1>
+        <key2>false</key2>
+    </someMap>
 </config>
