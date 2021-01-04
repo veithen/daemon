@@ -28,13 +28,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
-import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.DefaultDependencyResolutionRequest;
@@ -72,11 +70,7 @@ public class DefaultDaemonManager implements DaemonManager {
     @Requirement private ProjectDependenciesResolver dependencyResolver;
 
     private List<File> getClassPathForArtifact(
-            MavenSession session,
-            String groupId,
-            String artifactId,
-            String version,
-            Function<MavenProject, List<ArtifactRepository>> repos)
+            MavenSession session, String groupId, String artifactId, String version)
             throws DependencyResolutionException {
         MavenProject project = new MavenProject();
         Dependency dependency = new Dependency();
@@ -86,7 +80,10 @@ public class DefaultDaemonManager implements DaemonManager {
         dependency.setScope(JavaScopes.RUNTIME);
         project.getDependencies().add(dependency);
         project.setRemoteArtifactRepositories(
-                new ArrayList<>(repos.apply(session.getCurrentProject())));
+                new ArrayList<>(
+                        groupId.equals("com.github.veithen.daemon")
+                                ? session.getCurrentProject().getPluginArtifactRepositories()
+                                : session.getCurrentProject().getRemoteArtifactRepositories()));
         DefaultDependencyResolutionRequest resolution =
                 new DefaultDependencyResolutionRequest(project, session.getRepositorySession());
         DependencyResolutionResult resolutionResult = dependencyResolver.resolve(resolution);
@@ -134,17 +131,12 @@ public class DefaultDaemonManager implements DaemonManager {
                         vmArgs,
                         workDir,
                         getClassPathForArtifact(
-                                session,
-                                "com.github.veithen.daemon",
-                                "daemon-launcher",
-                                VERSION,
-                                MavenProject::getPluginArtifactRepositories),
+                                session, "com.github.veithen.daemon", "daemon-launcher", VERSION),
                         getClassPathForArtifact(
                                 session,
                                 daemonArtifact.getGroupId(),
                                 daemonArtifact.getArtifactId(),
-                                daemonArtifact.getVersion(),
-                                MavenProject::getRemoteArtifactRepositories),
+                                daemonArtifact.getVersion()),
                         testClasspath,
                         configuration,
                         expressionEvaluator,
