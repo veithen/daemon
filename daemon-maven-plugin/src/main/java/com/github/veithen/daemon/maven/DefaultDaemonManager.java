@@ -23,16 +23,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.DefaultDependencyResolutionRequest;
@@ -68,7 +69,11 @@ public class DefaultDaemonManager implements DaemonManager {
     @Requirement private ProjectDependenciesResolver dependencyResolver;
 
     private List<File> getClassPathForArtifact(
-            MavenSession session, String groupId, String artifactId, String version)
+            MavenSession session,
+            String groupId,
+            String artifactId,
+            String version,
+            Function<MavenProject, List<ArtifactRepository>> repos)
             throws DependencyResolutionException {
         MavenProject project = new MavenProject();
         Dependency dependency = new Dependency();
@@ -78,7 +83,7 @@ public class DefaultDaemonManager implements DaemonManager {
         dependency.setScope(JavaScopes.RUNTIME);
         project.getDependencies().add(dependency);
         project.setRemoteArtifactRepositories(
-                new ArrayList<>(session.getCurrentProject().getPluginArtifactRepositories()));
+                new ArrayList<>(repos.apply(session.getCurrentProject())));
         DefaultDependencyResolutionRequest resolution =
                 new DefaultDependencyResolutionRequest(project, session.getRepositorySession());
         DependencyResolutionResult resolutionResult = dependencyResolver.resolve(resolution);
@@ -97,7 +102,7 @@ public class DefaultDaemonManager implements DaemonManager {
             MavenSession session,
             String[] vmArgs,
             File workDir,
-            File[] classpath,
+            DaemonArtifact daemonArtifact,
             List<String> testClasspath,
             String[] daemonArgs)
             throws Throwable {
@@ -126,8 +131,17 @@ public class DefaultDaemonManager implements DaemonManager {
                         workDir,
                         description,
                         getClassPathForArtifact(
-                                session, "com.github.veithen.daemon", "daemon-launcher", VERSION),
-                        Arrays.asList(classpath),
+                                session,
+                                "com.github.veithen.daemon",
+                                "daemon-launcher",
+                                VERSION,
+                                MavenProject::getPluginArtifactRepositories),
+                        getClassPathForArtifact(
+                                session,
+                                daemonArtifact.getGroupId(),
+                                daemonArtifact.getArtifactId(),
+                                daemonArtifact.getVersion(),
+                                MavenProject::getRemoteArtifactRepositories),
                         testClasspath,
                         daemonArgs);
         daemons.add(daemon);

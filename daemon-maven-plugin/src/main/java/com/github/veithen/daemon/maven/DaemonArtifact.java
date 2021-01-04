@@ -19,21 +19,32 @@
  */
 package com.github.veithen.daemon.maven;
 
-import java.io.File;
-import java.util.List;
+public class DaemonArtifact {
+    private String groupId;
+    private String artifactId;
+    private String version;
 
-import org.apache.maven.execution.MavenSession;
+    public String getGroupId() {
+        return groupId;
+    }
 
-public interface DaemonManager {
-    void startDaemon(
-            String description,
-            MavenSession session,
-            String[] vmArgs,
-            File workDir,
-            DaemonArtifact daemonArtifact,
-            List<String> testClassPath,
-            String[] daemonArgs)
-            throws Throwable;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
-    void stopAll() throws Throwable;
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 }

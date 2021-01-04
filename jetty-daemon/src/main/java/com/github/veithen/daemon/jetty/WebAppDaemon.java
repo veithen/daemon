@@ -20,6 +20,7 @@
 package com.github.veithen.daemon.jetty;
 
 import java.io.File;
+import java.net.URLClassLoader;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -73,6 +74,10 @@ public class WebAppDaemon implements Daemon<Configuration> {
 
         server = new Server(Integer.parseInt(cmdLine.getOptionValue("p")));
 
+        Thread.currentThread()
+                .setContextClassLoader(
+                        new URLClassLoader(
+                                daemonContext.getTestClasspath(), getClass().getClassLoader()));
         WebAppContext context =
                 new WebAppContext(server, (Resource) null, "/") {
                     @Override

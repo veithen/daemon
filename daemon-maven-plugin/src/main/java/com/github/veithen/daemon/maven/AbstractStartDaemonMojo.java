@@ -22,37 +22,16 @@ package com.github.veithen.daemon.maven;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.factory.ArtifactFactory;
-import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactCollector;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.artifact.resolver.DebugResolutionListener;
-import org.apache.maven.artifact.resolver.ResolutionListener;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.MavenProjectBuilder;
-import org.apache.maven.project.ProjectBuildingException;
-import org.apache.maven.project.artifact.InvalidDependencyVersionException;
-import org.codehaus.plexus.logging.LogEnabled;
-import org.codehaus.plexus.logging.Logger;
 
-public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
-        implements LogEnabled {
+public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo {
     /** The maven project. */
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
@@ -60,24 +39,6 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
     /** The current build session instance. This is used for toolchain manager API calls. */
     @Parameter(property = "session", required = true, readonly = true)
     private MavenSession session;
-
-    @Component private MavenProjectBuilder projectBuilder;
-
-    /** Local maven repository. */
-    @Parameter(property = "localRepository", required = true, readonly = true)
-    private ArtifactRepository localRepository;
-
-    /** Remote repositories. */
-    @Parameter(property = "project.remoteArtifactRepositories", required = true, readonly = true)
-    private List<ArtifactRepository> remoteArtifactRepositories;
-
-    @Component private ArtifactFactory artifactFactory;
-
-    @Component private ArtifactResolver artifactResolver;
-
-    @Component private ArtifactCollector artifactCollector;
-
-    @Component private ArtifactMetadataSource artifactMetadataSource;
 
     /** The arguments to pass to the JVM when debug mode is enabled. */
     @Parameter(
@@ -114,112 +75,10 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
     @Parameter(property = "argLine")
     private String argLine;
 
-    @Parameter(property = "plugin.version", required = true, readonly = true)
-    private String pluginVersion;
-
-    private final Set<Artifact> additionalDependencies = new HashSet<>();
-    private List<File> classpath;
-
-    private Logger logger;
-
-    public final void enableLogging(Logger logger) {
-        this.logger = logger;
-    }
-
-    protected final void addDependency(String groupId, String artifactId, String version) {
-        additionalDependencies.add(
-                artifactFactory.createArtifact(
-                        groupId, artifactId, version, Artifact.SCOPE_TEST, "jar"));
-        classpath = null;
-    }
-
-    protected final void addDependency(String artifactId) {
-        addDependency("com.github.veithen.daemon", artifactId, pluginVersion);
-    }
-
-    protected final List<File> getClasspath()
-            throws ProjectBuildingException, InvalidDependencyVersionException,
-                    ArtifactResolutionException, ArtifactNotFoundException {
-        if (classpath == null) {
-            final Log log = getLog();
-
-            // We need dependencies in scope test. Since this is the largest scope, we don't need
-            // to do any additional filtering based on dependency scope.
-            Set<Artifact> projectDependencies = project.getArtifacts();
-
-            final Set<Artifact> artifacts = new HashSet<>(projectDependencies);
-
-            if (additionalDependencies != null) {
-                for (Artifact a : additionalDependencies) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Resolving artifact to be added to classpath: " + a);
-                    }
-                    ArtifactFilter filter =
-                            new ArtifactFilter() {
-                                public boolean include(Artifact artifact) {
-                                    String id = artifact.getDependencyConflictId();
-                                    for (Artifact a2 : artifacts) {
-                                        if (id.equals(a2.getDependencyConflictId())) {
-                                            return false;
-                                        }
-                                    }
-                                    return true;
-                                }
-                            };
-                    MavenProject p =
-                            projectBuilder.buildFromRepository(
-                                    a, remoteArtifactRepositories, localRepository);
-                    if (filter.include(p.getArtifact())) {
-                        Set<Artifact> s =
-                                p.createArtifacts(artifactFactory, Artifact.SCOPE_RUNTIME, filter);
-                        artifacts.addAll(
-                                artifactCollector
-                                        .collect(
-                                                s,
-                                                p.getArtifact(),
-                                                p.getManagedVersionMap(),
-                                                localRepository,
-                                                remoteArtifactRepositories,
-                                                artifactMetadataSource,
-                                                filter,
-                                                Collections.<ResolutionListener>singletonList(
-                                                        new DebugResolutionListener(logger)))
-                                        .getArtifacts());
-                        artifacts.add(p.getArtifact());
-                    }
-                }
-            }
-
-            classpath = new ArrayList<>();
-            classpath.add(new File(project.getBuild().getTestOutputDirectory()));
-            classpath.add(new File(project.getBuild().getOutputDirectory()));
-            for (Artifact a : artifacts) {
-                if (a.getArtifactHandler().isAddedToClasspath()) {
-                    if (a.getFile() == null) {
-                        artifactResolver.resolve(a, remoteArtifactRepositories, localRepository);
-                    }
-                    classpath.add(a.getFile());
-                }
-            }
-        }
-
-        return classpath;
-    }
-
-    protected final void startDaemon(String description, String[] args, File workDir)
+    protected final void startDaemon(
+            String description, DaemonArtifact daemonArtifact, String[] args, File workDir)
             throws MojoExecutionException, MojoFailureException {
         Log log = getLog();
-
-        // Get class path
-        List<File> classpath;
-        try {
-            classpath = getClasspath();
-        } catch (Exception ex) {
-            throw new MojoExecutionException("Failed to build classpath", ex);
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Class path elements: " + classpath);
-        }
 
         // Compute JVM arguments
         List<String> vmArgs = new ArrayList<>();
@@ -243,7 +102,7 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
                             session,
                             vmArgs.toArray(new String[vmArgs.size()]),
                             workDir,
-                            classpath.toArray(new File[classpath.size()]),
+                            daemonArtifact,
                             project.getTestClasspathElements(),
                             args);
         } catch (Throwable ex) {

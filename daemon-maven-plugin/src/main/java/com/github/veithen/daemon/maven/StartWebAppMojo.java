@@ -42,8 +42,14 @@ public class StartWebAppMojo extends AbstractStartWebServerMojo {
 
     @Parameter() private File requestLog;
 
+    @Parameter(property = "plugin.version", required = true, readonly = true)
+    private String pluginVersion;
+
     protected void doStartDaemon(int port) throws MojoExecutionException, MojoFailureException {
-        addDependency("jetty-daemon");
+        DaemonArtifact daemonArtifact = new DaemonArtifact();
+        daemonArtifact.setGroupId("com.github.veithen.daemon");
+        daemonArtifact.setArtifactId("jetty-daemon");
+        daemonArtifact.setVersion(pluginVersion);
         List<String> args =
                 new ArrayList<>(
                         Arrays.asList(
@@ -57,6 +63,7 @@ public class StartWebAppMojo extends AbstractStartWebServerMojo {
         }
         startDaemon(
                 "HTTP server on port " + port,
+                daemonArtifact,
                 args.toArray(new String[args.size()]),
                 new File("."));
     }
