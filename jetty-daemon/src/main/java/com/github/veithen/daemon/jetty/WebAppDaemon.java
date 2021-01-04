@@ -19,6 +19,7 @@
  */
 package com.github.veithen.daemon.jetty;
 
+import java.io.File;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
+import org.eclipse.jetty.util.resource.JarResource;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -55,14 +57,10 @@ public class WebAppDaemon implements Daemon<Configuration> {
                 .setContextClassLoader(
                         new URLClassLoader(
                                 daemonContext.getTestClasspath(), getClass().getClassLoader()));
-        List<Resource> resources = new ArrayList<>();
-        for (String resourceBase : configuration.getResourceBasesList()) {
-            resources.add(Resource.newResource(resourceBase));
-        }
         WebAppContext context =
                 new WebAppContext(
                         server,
-                        resources.size() == 1 ? resources.get(0) : null,
+                        (Resource) null,
                         configuration.getContextPath().isEmpty()
                                 ? "/"
                                 : configuration.getContextPath()) {
@@ -74,10 +72,29 @@ public class WebAppDaemon implements Daemon<Configuration> {
                     }
                 };
         server.setHandler(context);
-        if (resources.size() > 1) {
-            context.setBaseResource(
-                    new ResourceCollection(resources.toArray(new Resource[resources.size()])));
+        List<Resource> resources = new ArrayList<>();
+        for (String resourceBase : configuration.getResourceBasesList()) {
+            Resource resource = Resource.newResource(resourceBase);
+            File file = resource.getFile();
+            String name = file.getName();
+            // We always unpack WARs ourselves. Jetty looks for a sibling directory of the WAR file
+            // with a matching name. That will exist if the WAR file was produced by
+            // maven-war-plugin. In that case, this results in an attempt to access files in the
+            // target directory of another module (which will cause errors if hermetic-maven-plugin
+            // is used).
+            if (name.endsWith(".war")) {
+                File unpackDir = new File("webapps", name.substring(0, name.length() - 4));
+                if (!unpackDir.exists() || resource.lastModified() > unpackDir.lastModified()) {
+                    System.out.println("Unpacking " + file);
+                    unpackDir.mkdirs();
+                    JarResource.newJarResource(resource).copyTo(unpackDir);
+                }
+                resource = Resource.newResource(unpackDir);
+            }
+            resources.add(resource);
         }
+        context.setBaseResource(
+                new ResourceCollection(resources.toArray(new Resource[resources.size()])));
         context.addBean(
                 new AbstractLifeCycle() {
                     @Override
