@@ -95,9 +95,6 @@
                     <version>3.11.4</version>
                     <configuration>
                         <protocArtifact>com.google.protobuf:protoc:${protobuf.version}</protocArtifact>
-                        <inputDirectories>
-                            <include>src/main/protobuf</include>
-                        </inputDirectories>
                         <type>java</type>
                         <outputDirectorySuffix>protobuf</outputDirectorySuffix>
                     </configuration>
