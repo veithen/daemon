@@ -27,6 +27,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
@@ -46,7 +47,8 @@ public class RemoteDaemon {
     private final String[] vmArgs;
     private final File workDir;
     private final String description;
-    private final File[] classpath;
+    private final List<File> launcherClasspath;
+    private final List<File> daemonClasspath;
     private final String daemonClass;
     private final String[] daemonArgs;
     private Process process;
@@ -60,7 +62,8 @@ public class RemoteDaemon {
             String[] vmArgs,
             File workDir,
             String description,
-            File[] classpath,
+            List<File> launcherClasspath,
+            List<File> daemonClasspath,
             String daemonClass,
             String[] daemonArgs) {
         this.logger = logger;
@@ -68,7 +71,8 @@ public class RemoteDaemon {
         this.vmArgs = vmArgs;
         this.workDir = workDir;
         this.description = description;
-        this.classpath = classpath;
+        this.launcherClasspath = launcherClasspath;
+        this.daemonClasspath = daemonClasspath;
         this.daemonClass = daemonClass;
         this.daemonArgs = daemonArgs;
     }
@@ -88,7 +92,7 @@ public class RemoteDaemon {
             List<String> cmdline = new ArrayList<>();
             cmdline.add(jvm);
             cmdline.add("-cp");
-            cmdline.add(StringUtils.join(classpath, File.pathSeparator));
+            cmdline.add(StringUtils.join(launcherClasspath.iterator(), File.pathSeparator));
             cmdline.addAll(Arrays.asList(vmArgs));
             cmdline.add("com.github.veithen.daemon.launcher.Launcher");
             cmdline.add(String.valueOf(controlServerSocket.getLocalPort()));
@@ -130,7 +134,14 @@ public class RemoteDaemon {
 
         controlWriter.write(
                 DaemonRequest.newBuilder()
-                        .setInitialize(Initialize.newBuilder().setDaemonClass(daemonClass).build())
+                        .setInitialize(
+                                Initialize.newBuilder()
+                                        .addAllClasspathEntry(
+                                                daemonClasspath.stream()
+                                                        .map(File::toString)
+                                                        .collect(Collectors.toList()))
+                                        .setDaemonClass(daemonClass)
+                                        .build())
                         .build());
         logger.debug("Awaiting initialization");
         controlReader.read(ResponseCase.INITIALIZED);

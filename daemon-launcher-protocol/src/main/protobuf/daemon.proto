@@ -6,7 +6,8 @@ option java_multiple_files = true;
 import "google/protobuf/descriptor.proto";
 
 message Initialize {
-    string daemon_class = 1;
+    repeated string classpath_entry = 1;
+    string daemon_class = 2;
 }
 
 message Start {

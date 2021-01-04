@@ -20,7 +20,11 @@
 package com.github.veithen.daemon.launcher;
 
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.util.List;
 
 import com.github.veithen.daemon.Daemon;
@@ -28,6 +32,7 @@ import com.github.veithen.daemon.DaemonContext;
 import com.github.veithen.daemon.launcher.proto.DaemonRequest;
 import com.github.veithen.daemon.launcher.proto.DaemonRequest.RequestCase;
 import com.github.veithen.daemon.launcher.proto.DaemonResponse;
+import com.github.veithen.daemon.launcher.proto.Initialize;
 import com.github.veithen.daemon.launcher.proto.Initialized;
 import com.github.veithen.daemon.launcher.proto.MessageReader;
 import com.github.veithen.daemon.launcher.proto.MessageWriter;
@@ -88,13 +93,22 @@ public final class Launcher {
             MessageWriter<DaemonResponse> writer =
                     new MessageWriter<>(controlSocket.getOutputStream());
 
+            Initialize initRequest = reader.read(RequestCase.INITIALIZE).getInitialize();
+            URLClassLoader classLoader =
+                    new URLClassLoader(
+                            initRequest.getClasspathEntryList().stream()
+                                    .map(
+                                            s -> {
+                                                try {
+                                                    return Paths.get(s).toUri().toURL();
+                                                } catch (MalformedURLException ex) {
+                                                    throw new Error(ex);
+                                                }
+                                            })
+                                    .toArray(URL[]::new));
+            Thread.currentThread().setContextClassLoader(classLoader);
             Daemon<?> daemon =
-                    (Daemon<?>)
-                            Class.forName(
-                                            reader.read(RequestCase.INITIALIZE)
-                                                    .getInitialize()
-                                                    .getDaemonClass())
-                                    .newInstance();
+                    (Daemon<?>) classLoader.loadClass(initRequest.getDaemonClass()).newInstance();
             Class<? extends Message> configurationType = daemon.getConfigurationType();
             Descriptor descriptor =
                     (Descriptor) configurationType.getMethod("getDescriptor").invoke(null);

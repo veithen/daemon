@@ -103,7 +103,25 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-metadata</artifactId>
+                <version>2.1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-metadata</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.github.os72</groupId>
                 <artifactId>protoc-jar-maven-plugin</artifactId>
@@ -119,18 +137,6 @@
                                 <include>src/test/protobuf</include>
                             </inputDirectories>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-component-metadata</artifactId>
-                <version>2.1.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate-metadata</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -161,9 +167,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <goals>
-                                <goal>verify</goal>
-                            </goals>
+                            <goals>verify -e</goals>
                             <streamLogs>true</streamLogs>
                         </configuration>
                     </execution>

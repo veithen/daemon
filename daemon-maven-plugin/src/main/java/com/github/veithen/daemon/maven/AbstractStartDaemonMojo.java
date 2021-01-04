@@ -257,7 +257,6 @@ public abstract class AbstractStartDaemonMojo extends AbstractDaemonControlMojo
     }
 
     protected final void doExecute() throws MojoExecutionException, MojoFailureException {
-        addDependency("daemon-launcher");
         doStartDaemon();
     }
 
