@@ -32,6 +32,6 @@ public class HelloWorldServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/plain; charset=utf-8");
-        response.getWriter().write("Hello world!");
+        response.getWriter().write(getServletContext().getInitParameter("helloWorldText"));
     }
 }

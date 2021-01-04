@@ -73,6 +73,9 @@
                                     <resourceBase>src/test/webapp</resourceBase>
                                 </resourceBases>
                                 <contextPath>/foobar</contextPath>
+                                <initParameters>
+                                    <helloWorldText>Hello world!</helloWorldText>
+                                </initParameters>
                             </daemonConfiguration>
                             <argLine>@argLine@</argLine>
                         </configuration>

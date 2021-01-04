@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
@@ -102,8 +104,12 @@ public class WebAppDaemon implements Daemon<Configuration> {
 
                     @Override
                     public void doStart() throws Exception {
+                        ServletContext servletContext = context.getServletContext();
                         JettyJasperInitializer jspInit = new JettyJasperInitializer();
-                        jspInit.onStartup(Collections.emptySet(), context.getServletContext());
+                        jspInit.onStartup(Collections.emptySet(), servletContext);
+                        configuration
+                                .getInitParametersMap()
+                                .forEach(servletContext::setInitParameter);
                     }
                 },
                 true);
