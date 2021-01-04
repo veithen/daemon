@@ -129,7 +129,7 @@ public final class Launcher {
                             .setInitialized(
                                     Initialized.newBuilder()
                                             .setConfigurationType(descriptor.getFullName())
-                                            .addFileDescriptor(descriptor.getFile().toProto())
+                                            .setFileDescriptor(descriptor.getFile().toProto())
                                             .build())
                             .build());
 

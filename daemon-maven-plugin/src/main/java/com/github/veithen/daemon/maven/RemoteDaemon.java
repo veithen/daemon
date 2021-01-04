@@ -36,10 +36,13 @@ import com.github.veithen.daemon.launcher.proto.DaemonRequest;
 import com.github.veithen.daemon.launcher.proto.DaemonResponse;
 import com.github.veithen.daemon.launcher.proto.DaemonResponse.ResponseCase;
 import com.github.veithen.daemon.launcher.proto.Initialize;
+import com.github.veithen.daemon.launcher.proto.Initialized;
 import com.github.veithen.daemon.launcher.proto.MessageReader;
 import com.github.veithen.daemon.launcher.proto.MessageWriter;
 import com.github.veithen.daemon.launcher.proto.Start;
 import com.github.veithen.daemon.launcher.proto.Stop;
+import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.Descriptors.FileDescriptor;
 
 public class RemoteDaemon {
     private final Logger logger;
@@ -143,7 +146,13 @@ public class RemoteDaemon {
                                         .build())
                         .build());
         logger.debug("Awaiting initialization");
-        controlReader.read(ResponseCase.INITIALIZED);
+        Initialized initResponse = controlReader.read(ResponseCase.INITIALIZED).getInitialized();
+        Descriptor descriptor =
+                FileDescriptor.buildFrom(initResponse.getFileDescriptor(), new FileDescriptor[0])
+                        .findMessageTypeByName(initResponse.getConfigurationType());
+        if (descriptor == null) {
+            throw new Error("Unable to find descriptor for " + initResponse.getConfigurationType());
+        }
         controlWriter.write(
                 DaemonRequest.newBuilder()
                         .setStart(
