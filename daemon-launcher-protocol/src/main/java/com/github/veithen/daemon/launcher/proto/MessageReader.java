@@ -23,22 +23,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Function;
 
+import com.github.veithen.daemon.ProtoOptions;
+import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 
 public class MessageReader<T extends Message, C extends Enum<C>> {
     private final InputStream in;
     private final Parser<T> parser;
-    private Function<T, C> caseProvider;
+    private final Function<T, C> caseProvider;
+    private final ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
 
     public MessageReader(InputStream in, Parser<T> parser, Function<T, C> caseProvider) {
         this.in = in;
         this.parser = parser;
         this.caseProvider = caseProvider;
+        ProtoOptions.registerAllExtensions(extensionRegistry);
     }
 
     public T read(C expectedCase) throws IOException {
-        T message = parser.parseDelimitedFrom(in);
+        T message = parser.parseDelimitedFrom(in, extensionRegistry);
         if (message == null) {
             throw new IOException("Unexpected end of stream");
         }
