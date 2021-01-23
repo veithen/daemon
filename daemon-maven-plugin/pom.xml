@@ -43,6 +43,7 @@
 
     <properties>
         <maven.version>3.6.3</maven.version>
+        <truth.version>1.1.1</truth.version>
     </properties>
 
     <dependencies>
@@ -88,11 +89,12 @@
         <dependency>
             <groupId>com.google.truth</groupId>
             <artifactId>truth</artifactId>
+            <version>${truth.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.truth.extensions</groupId>
             <artifactId>truth-proto-extension</artifactId>
-            <version>1.1</version>
+            <version>${truth.version}</version>
         </dependency>
         
         <!-- These dependencies are here merely to ensure that in the Axis build they are built
