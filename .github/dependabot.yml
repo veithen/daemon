@@ -8,7 +8,7 @@ updates:
       - dependency-name: "org.eclipse.jetty:jetty-webapp"
         versions: ">= 10.0"
   - package-ecosystem: "maven"
-    directory: "/daemon-maven-plugin/src/it/jetty"
+    directory: "/jetty-daemon/src/it/jetty"
     schedule:
       interval: "daily"
     ignore:
@@ -16,6 +16,13 @@ updates:
       - dependency-name: "javax.servlet:javax.servlet-api"
         versions: "> 3.1.0"
   - package-ecosystem: "maven"
-    directory: "//daemon-maven-plugin/src/it/jetty-request-log"
+    directory: "/jetty-daemon/src/it/jetty-proxy"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "org.eclipse.jetty:jetty-proxy"
+        versions: ">= 10.0"
+  - package-ecosystem: "maven"
+    directory: "/jetty-daemon/src/it/jetty-request-log"
     schedule:
       interval: "daily"
