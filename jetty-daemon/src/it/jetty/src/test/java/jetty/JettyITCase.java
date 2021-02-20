@@ -19,13 +19,13 @@
  */
 package jetty;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JettyITCase {
     @Test
@@ -37,7 +37,7 @@ public class JettyITCase {
                                 System.getProperty("jetty.httpPort")));
         try (BufferedReader in =
                 new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"))) {
-            assertEquals("Hello world!", in.readLine());
+            assertThat(in.readLine()).isEqualTo("Hello world!");
         }
     }
 
@@ -54,7 +54,7 @@ public class JettyITCase {
             while ((line = in.readLine()).isEmpty()) {
                 // Just loop
             }
-            assertEquals("Test", line);
+            assertThat(line).isEqualTo("Test");
         }
     }
 }
