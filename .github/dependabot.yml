@@ -26,3 +26,7 @@ updates:
     directory: "/jetty-daemon/src/it/jetty-request-log"
     schedule:
       interval: "daily"
+  - package-ecosystem: "maven"
+    directory: "/jetty-daemon/src/it/war"
+    schedule:
+      interval: "daily"
