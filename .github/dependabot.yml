@@ -26,3 +26,10 @@ updates:
     directory: "/jetty-daemon/src/it/jetty-request-log"
     schedule:
       interval: "daily"
+  - package-ecosystem: "maven"
+    directory: "/jetty-daemon/src/it/war"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "javax.servlet:javax.servlet-api"
+        versions: "> 3.1.0"
