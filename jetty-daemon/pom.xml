@@ -41,7 +41,7 @@
     </scm>
 
     <properties>
-        <jetty.version>9.4.39.v20210325</jetty.version>
+        <jetty.version>11.0.2</jetty.version>
     </properties>
 
     <dependencies>
