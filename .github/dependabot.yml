@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "org.eclipse.jetty:jetty-webapp"
+      - dependency-name: "org.eclipse.jetty:*"
         versions: ">= 10.0"
   - package-ecosystem: "maven"
     directory: "/jetty-daemon/src/it/jetty"
@@ -20,7 +20,7 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      - dependency-name: "org.eclipse.jetty:jetty-proxy"
+      - dependency-name: "org.eclipse.jetty:*"
         versions: ">= 10.0"
   - package-ecosystem: "maven"
     directory: "/jetty-daemon/src/it/jetty-request-log"
