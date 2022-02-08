@@ -27,6 +27,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 /** Stop all processes created by {@link StartMojo}. */
 @Mojo(name = "stop-all", defaultPhase = LifecyclePhase.POST_INTEGRATION_TEST)
 public class StopAllMojo extends AbstractDaemonControlMojo {
+    @Override
     protected void doExecute() throws MojoExecutionException, MojoFailureException {
         try {
             getDaemonManager().stopAll();

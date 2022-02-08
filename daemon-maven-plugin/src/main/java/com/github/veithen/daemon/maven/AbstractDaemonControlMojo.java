@@ -39,6 +39,7 @@ public abstract class AbstractDaemonControlMojo extends AbstractMojo {
         return daemonManager;
     }
 
+    @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         if (skipTests) {
             getLog().info("Tests are skipped.");
