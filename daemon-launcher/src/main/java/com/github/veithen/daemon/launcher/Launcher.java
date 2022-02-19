@@ -80,8 +80,6 @@ import com.google.protobuf.Parser;
  *       connection and terminates itself.
  *   <li>The parent process closes the control connection.
  * </ol>
- *
- * @author Andreas Veithen
  */
 public final class Launcher {
     private Launcher() {}

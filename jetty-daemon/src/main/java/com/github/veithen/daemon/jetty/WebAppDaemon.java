@@ -40,7 +40,6 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import com.github.veithen.daemon.Daemon;
 import com.github.veithen.daemon.DaemonContext;
 
-/** @author Andreas Veithen */
 public class WebAppDaemon implements Daemon<Configuration> {
     private static final String HTTP_PORT_NAME = "http";
 
