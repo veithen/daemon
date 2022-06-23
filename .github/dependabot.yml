@@ -6,22 +6,22 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "org.eclipse.jetty:*"
-        versions: ">= 10.0"
+        versions: ">= 11.0"
   - package-ecosystem: "maven"
     directory: "/jetty-daemon/src/it/jetty"
     schedule:
       interval: "daily"
     ignore:
-      # Jetty 9 supports Servlets 3.1.
+      # Jetty 9 supports Servlets 4.0.
       - dependency-name: "javax.servlet:javax.servlet-api"
-        versions: "> 3.1.0"
+        versions: ">= 4.1.0"
   - package-ecosystem: "maven"
     directory: "/jetty-daemon/src/it/jetty-proxy"
     schedule:
       interval: "daily"
     ignore:
       - dependency-name: "org.eclipse.jetty:*"
-        versions: ">= 10.0"
+        versions: ">= 11.0"
   - package-ecosystem: "maven"
     directory: "/jetty-daemon/src/it/jetty-request-log"
     schedule:
@@ -32,4 +32,4 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "javax.servlet:javax.servlet-api"
-        versions: "> 3.1.0"
+        versions: ">= 4.1.0"
