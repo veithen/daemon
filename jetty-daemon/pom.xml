@@ -113,7 +113,6 @@
                         </goals>
                         <configuration>
                             <goals>verify -e</goals>
-                            <streamLogs>true</streamLogs>
                         </configuration>
                     </execution>
                 </executions>
