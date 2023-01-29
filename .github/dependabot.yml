@@ -20,3 +20,7 @@ updates:
     directory: "/jetty-daemon/src/it/war"
     schedule:
       interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
