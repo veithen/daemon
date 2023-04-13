@@ -59,7 +59,7 @@
         <github.repository>daemon</github.repository>
         <javaVersion>11</javaVersion>
         <project.build.outputTimestamp>2023-03-05T17:23:39Z</project.build.outputTimestamp>
-        <protobuf.version>3.22.2</protobuf.version>
+        <protobuf.version>3.22.3</protobuf.version>
     </properties>
 
     <dependencyManagement>
