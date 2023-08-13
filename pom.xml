@@ -27,7 +27,7 @@
 
     <groupId>com.github.veithen.daemon</groupId>
     <artifactId>daemon</artifactId>
-    <version>0.6.0</version>
+    <version>0.6.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <url>http://veithen.github.io/daemon/</url>
@@ -52,13 +52,13 @@
         <url>https://github.com/veithen/daemon/tree/master</url>
         <connection>scm:git:http://github.com/veithen/daemon.git</connection>
         <developerConnection>scm:git:https://github.com/veithen/daemon.git</developerConnection>
-        <tag>0.6.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
         <github.repository>daemon</github.repository>
         <javaVersion>17</javaVersion>
-        <project.build.outputTimestamp>2023-08-13T17:18:51Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2023-08-13T17:19:38Z</project.build.outputTimestamp>
         <protobuf.version>3.24.0</protobuf.version>
     </properties>
 
