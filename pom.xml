@@ -27,7 +27,7 @@
 
     <groupId>com.github.veithen.daemon</groupId>
     <artifactId>daemon</artifactId>
-    <version>0.5.2-SNAPSHOT</version>
+    <version>0.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <url>http://veithen.github.io/daemon/</url>
@@ -58,7 +58,7 @@
     <properties>
         <github.repository>daemon</github.repository>
         <javaVersion>17</javaVersion>
-        <project.build.outputTimestamp>2023-03-05T17:23:39Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2023-08-13T16:33:08Z</project.build.outputTimestamp>
         <protobuf.version>3.24.0</protobuf.version>
     </properties>
 

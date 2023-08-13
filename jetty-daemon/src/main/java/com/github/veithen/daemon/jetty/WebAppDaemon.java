@@ -19,7 +19,7 @@
  */
 package com.github.veithen.daemon.jetty;
 
-import java.io.File;
+import java.net.URI;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,14 +28,14 @@ import java.util.Map;
 
 import jakarta.servlet.ServletContext;
 
-import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
+import org.eclipse.jetty.ee10.apache.jsp.JettyJasperInitializer;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
-import org.eclipse.jetty.util.resource.JarResource;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.resource.ResourceCollection;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 import com.github.veithen.daemon.Daemon;
 import com.github.veithen.daemon.DaemonContext;
@@ -60,7 +60,6 @@ public class WebAppDaemon implements Daemon<Configuration> {
                                 daemonContext.getTestClasspath(), getClass().getClassLoader()));
         WebAppContext context =
                 new WebAppContext(
-                        server,
                         (Resource) null,
                         configuration.getContextPath().isEmpty()
                                 ? "/"
@@ -73,29 +72,14 @@ public class WebAppDaemon implements Daemon<Configuration> {
                     }
                 };
         server.setHandler(context);
-        List<Resource> resources = new ArrayList<>();
+        List<URI> uris = new ArrayList<>();
         for (String resourceBase : configuration.getResourceBasesList()) {
-            Resource resource = Resource.newResource(resourceBase);
-            File file = resource.getFile();
-            String name = file.getName();
-            // We always unpack WARs ourselves. Jetty looks for a sibling directory of the WAR file
-            // with a matching name. That will exist if the WAR file was produced by
-            // maven-war-plugin. In that case, this results in an attempt to access files in the
-            // target directory of another module (which will cause errors if hermetic-maven-plugin
-            // is used).
-            if (name.endsWith(".war")) {
-                File unpackDir = new File("webapps", name.substring(0, name.length() - 4));
-                if (!unpackDir.exists() || resource.lastModified() > unpackDir.lastModified()) {
-                    System.out.println("Unpacking " + file);
-                    unpackDir.mkdirs();
-                    JarResource.newJarResource(resource).copyTo(unpackDir);
-                }
-                resource = Resource.newResource(unpackDir);
-            }
-            resources.add(resource);
+            uris.add(
+                    resourceBase.endsWith(".war")
+                            ? URIUtil.toJarFileUri(URIUtil.toURI(resourceBase))
+                            : URIUtil.toURI(resourceBase));
         }
-        context.setBaseResource(
-                new ResourceCollection(resources.toArray(new Resource[resources.size()])));
+        context.setBaseResource(ResourceFactory.of(context).newResource(uris));
         context.addBean(
                 new AbstractLifeCycle() {
                     @Override

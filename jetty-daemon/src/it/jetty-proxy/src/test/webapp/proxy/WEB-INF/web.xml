@@ -22,7 +22,7 @@
          version="3.0">
     <servlet>
         <servlet-name>proxy</servlet-name>
-        <servlet-class>org.eclipse.jetty.proxy.ProxyServlet</servlet-class>
+        <servlet-class>org.eclipse.jetty.ee10.proxy.ProxyServlet</servlet-class>
         <async-supported>true</async-supported>
     </servlet>
     <servlet-mapping>
