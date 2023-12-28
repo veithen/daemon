@@ -1,22 +1,13 @@
 {
-	"name": "Java",
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
 	"features": {
 		"ghcr.io/devcontainers/features/java:1": {
 			"version": "17",
 			"installMaven": "true",
-			"mavenVersion": "3.9.1",
-			"installGradle": "false"
+			"mavenVersion": "3.9.1"
 		},
 		"ghcr.io/devcontainers-contrib/features/mvnd-sdkman:2": {
 			"jdkVersion": "none"
-		}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"github.vscode-github-actions"
-			]
 		}
 	}
 }
