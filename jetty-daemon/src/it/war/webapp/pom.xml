@@ -34,6 +34,11 @@
             <version>6.0.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>servlets</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

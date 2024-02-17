@@ -19,6 +19,7 @@
 <web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
+    <!-- Servlet loaded from WEB-INF/classes -->
     <servlet>
         <servlet-name>HelloWorld</servlet-name>
         <servlet-class>test.HelloWorldServlet</servlet-class>
@@ -26,5 +27,14 @@
     <servlet-mapping>
         <servlet-name>HelloWorld</servlet-name>
         <url-pattern>/HelloWorld</url-pattern>
+    </servlet-mapping>
+    <!-- Servlet loaded from WEB-INF/lib -->
+    <servlet>
+        <servlet-name>HelloWorld2</servlet-name>
+        <servlet-class>test.HelloWorldServlet2</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HelloWorld2</servlet-name>
+        <url-pattern>/HelloWorld2</url-pattern>
     </servlet-mapping>
 </web-app>

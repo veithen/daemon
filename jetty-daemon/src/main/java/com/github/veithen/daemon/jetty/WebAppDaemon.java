@@ -19,8 +19,9 @@
  */
 package com.github.veithen.daemon.jetty;
 
-import java.net.URI;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +33,7 @@ import org.eclipse.jetty.ee10.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.URIUtil;
+import org.eclipse.jetty.util.FileID;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
@@ -72,14 +73,31 @@ public class WebAppDaemon implements Daemon<Configuration> {
                     }
                 };
         server.setHandler(context);
-        List<URI> uris = new ArrayList<>();
+        ResourceFactory resourceFactory = ResourceFactory.of(context);
+        List<Resource> resources = new ArrayList<>();
         for (String resourceBase : configuration.getResourceBasesList()) {
-            uris.add(
-                    resourceBase.endsWith(".war")
-                            ? URIUtil.toJarFileUri(URIUtil.toURI(resourceBase))
-                            : URIUtil.toURI(resourceBase));
+            Resource resource = resourceFactory.newResource(resourceBase);
+            Path path = resource.getPath();
+            // We always unpack WARs ourselves. Jetty looks for a sibling directory of the WAR file
+            // with a matching name. That will exist if the WAR file was produced by
+            // maven-war-plugin. In that case, this results in an attempt to access files in the
+            // target directory of another module (which will cause errors if hermetic-maven-plugin
+            // is used).
+            if (FileID.isWebArchive(path)) {
+                String name = path.getFileName().toString();
+                Path unpackDir = Path.of("webapps", name.substring(0, name.length() - 4));
+                if (!Files.exists(unpackDir)
+                        || resource.lastModified()
+                                .isAfter(Files.getLastModifiedTime(unpackDir).toInstant())) {
+                    System.out.println("Unpacking " + path);
+                    Files.createDirectories(unpackDir);
+                    resourceFactory.newJarFileResource(resource.getURI()).copyTo(unpackDir);
+                }
+                resource = resourceFactory.newResource(unpackDir);
+            }
+            resources.add(resource);
         }
-        context.setBaseResource(ResourceFactory.of(context).newResource(uris));
+        context.setBaseResource(ResourceFactory.combine(resources));
         context.addBean(
                 new AbstractLifeCycle() {
                     @Override
