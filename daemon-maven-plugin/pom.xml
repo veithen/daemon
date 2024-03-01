@@ -43,7 +43,7 @@
 
     <properties>
         <maven.version>3.9.6</maven.version>
-        <truth.version>1.4.1</truth.version>
+        <truth.version>1.4.2</truth.version>
     </properties>
 
     <dependencies>
