@@ -19,7 +19,7 @@
  */
 package com.github.veithen.daemon.maven;
 
-import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 
