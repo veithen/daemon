@@ -33,6 +33,7 @@ import org.eclipse.jetty.ee10.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.ClassMatcher;
 import org.eclipse.jetty.util.FileID;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.resource.Resource;
@@ -64,14 +65,9 @@ public class WebAppDaemon implements Daemon<Configuration> {
                         (Resource) null,
                         configuration.getContextPath().isEmpty()
                                 ? "/"
-                                : configuration.getContextPath()) {
-                    @Override
-                    public boolean isServerClass(Class<?> clazz) {
-                        // This allows the webapp to load servlets provided by Jetty, e.g.
-                        // ProxyServlet.
-                        return false;
-                    }
-                };
+                                : configuration.getContextPath());
+        // This allows the webapp to load servlets provided by Jetty, e.g. ProxyServlet.
+        context.setHiddenClassMatcher(new ClassMatcher());
         server.setHandler(context);
         ResourceFactory resourceFactory = ResourceFactory.of(context);
         List<Resource> resources = new ArrayList<>();
