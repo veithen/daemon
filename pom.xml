@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.github.veithen</groupId>
         <artifactId>parent</artifactId>
-        <version>54</version>
+        <version>55-SNAPSHOT</version>
     </parent>
 
     <groupId>com.github.veithen.daemon</groupId>
@@ -30,6 +30,7 @@
     <version>0.6.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>daemon</name>
     <url>http://veithen.github.io/daemon/</url>
     <inceptionYear>2012</inceptionYear>
     <licenses>

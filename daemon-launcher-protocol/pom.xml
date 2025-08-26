@@ -28,6 +28,8 @@
 
     <artifactId>daemon-launcher-protocol</artifactId>
 
+    <name>daemon-launcher-protocol</name>
+
     <scm>
         <url>https://github.com/veithen/daemon/tree/master</url>
         <connection>scm:git:http://github.com/veithen/daemon.git</connection>
