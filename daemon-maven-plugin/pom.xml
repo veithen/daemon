@@ -42,7 +42,7 @@
     </scm>
 
     <properties>
-        <maven.version>3.9.14</maven.version>
+        <maven.version>3.9.15</maven.version>
     </properties>
 
     <dependencies>
