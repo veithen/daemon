@@ -63,15 +63,14 @@ public class JettyITCase {
         assertThat(c.getResponseCode()).isEqualTo(200);
         c.disconnect();
 
-        withRetry(
-                () -> {
-                    try (BufferedReader in =
-                            new BufferedReader(
-                                    new InputStreamReader(
-                                            new FileInputStream("target/request.log"), "utf-8"))) {
-                        assertThat(in.readLine()).contains("GET /somefile.txt");
-                        assertThat(in.readLine()).isNull();
-                    }
-                });
+        withRetry(() -> {
+            try (BufferedReader in =
+                    new BufferedReader(
+                            new InputStreamReader(
+                                    new FileInputStream("target/request.log"), "utf-8"))) {
+                assertThat(in.readLine()).contains("GET /somefile.txt");
+                assertThat(in.readLine()).isNull();
+            }
+        });
     }
 }

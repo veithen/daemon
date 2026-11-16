@@ -86,14 +86,13 @@ public final class Launcher {
 
     private static URL[] toURLs(List<String> classpathEntries) {
         return classpathEntries.stream()
-                .map(
-                        s -> {
-                            try {
-                                return Paths.get(s).toUri().toURL();
-                            } catch (MalformedURLException ex) {
-                                throw new Error(ex);
-                            }
-                        })
+                .map(s -> {
+                    try {
+                        return Paths.get(s).toUri().toURL();
+                    } catch (MalformedURLException ex) {
+                        throw new Error(ex);
+                    }
+                })
                 .toArray(URL[]::new);
     }
 
