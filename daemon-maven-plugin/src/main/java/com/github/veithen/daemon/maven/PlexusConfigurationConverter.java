@@ -95,10 +95,9 @@ final class PlexusConfigurationConverter {
         Map<String, FieldDescriptor> fieldMap = new HashMap<>();
         descriptor
                 .getFields()
-                .forEach(
-                        f -> {
-                            fieldMap.put(f.getJsonName(), f);
-                        });
+                .forEach(f -> {
+                    fieldMap.put(f.getJsonName(), f);
+                });
         for (PlexusConfiguration child : config.getChildren()) {
             FieldDescriptor field = fieldMap.get(child.getName());
             if (field == null) {
